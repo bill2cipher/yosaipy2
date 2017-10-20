@@ -1,0 +1,65 @@
+"""
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+"""
+
+refactor ValueError to TypeError for None checks
+
+RememberMe cookies:
+    - require an expiration date on the cookie itself
+    - require tracking in a persistent datastore (nonce id , expiration date)
+      so that absolute timeout checking can be performed
+
+
+---------------------------------------------------------------------
+
+refactor method overloading, cleanly separating collection vs scalar arguments
+
+create a SimpleAuthorizer, which maintains only ONE authorizing realm
+
+within the ModularAuthorizer, keep a mapping in memory between identifier and realm
+
+a sessionexecutor raises expired session events, which are received by the
+Authorizer and then relayed to the realm to clear cache
+
+an expired session clears authorization and session cache
+
+a refreshed authorization cache is one that replaces an invalidated authorization cache
+and has a TTL that is in synch with the user's session
+
+=---------------------------------------------------------------------------=
+
+Packaging
+-----------------
+1) move dependencies to setup.py  (ex:  https://github.com/kislyuk/signxml/pull/37)
+2) create a pypi compatible README as it doesnt handle markup
+
+-----------------------------------------------------------------------------
+
+remove the logging level checks -- not necessary in python
+
+PEP8 standardized imports:
+    First group:  import stdlib modules
+    Second group:  third party libs
+    Third group: modules from yosai
+
+synchronize imperative and declarative authz examples:
+https://yosaiproject.github.io/yosai/authorization/#access-control-levels-and-styles
+
+RunAs ought to emit an event, to help audit administrative work
+
+Document RunAs
