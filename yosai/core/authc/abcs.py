@@ -17,13 +17,12 @@ specific language governing permissions and limitations
 under the License.
 """
 
-
 from abc import ABCMeta, abstractmethod
 import six
 
 
 @six.add_metaclass(ABCMeta)
-class AuthenticationToken:
+class AuthenticationToken(object):
     """
     An ``AuthenticationToken`` is a consolidation of an account's identifiers and
     supporting credentials submitted by a user during an authentication
@@ -66,7 +65,7 @@ class AuthenticationToken:
 
 
 @six.add_metaclass(ABCMeta)
-class Authenticator:
+class Authenticator(object):
     """
     An Authenticator is responsible for authenticating accounts.
 
@@ -108,14 +107,14 @@ class Authenticator:
 
 
 @six.add_metaclass(ABCMeta)
-class CredentialsVerifier:
+class CredentialsVerifier(object):
     @abstractmethod
-    def verify_credentials(authc_token, account):
+    def verify_credentials(self, authc_token, account):
         pass
 
 
 @six.add_metaclass(ABCMeta)
-class MFADispatcher:
+class MFADispatcher(object):
     @abstractmethod
     def dispatch(self, mfa_info, token):
         pass

@@ -22,7 +22,7 @@ import six
 
 
 @six.add_metaclass(ABCMeta)
-class Serializable:
+class Serializable(object):
     def __eq__(self, other):
         if self is other:
             return True
@@ -33,7 +33,7 @@ class Serializable:
 
 # taken from asphalt.serialization
 @six.add_metaclass(ABCMeta)
-class Serializer:
+class Serializer(object):
     """
     This abstract class defines the serializer API.
 

@@ -4,7 +4,7 @@ from unittest import mock
 from yosai.core import (
     SerializationManager,
 )
-from yosai.core.serialize.serialize import msgpack
+from yosai.core.serialize.serialize import msgpack_serializer
 
 
 @mock.patch.object(SerializationManager, 'register_serializables')
@@ -15,7 +15,7 @@ def test_sm_init(mock_sm_rs):
     """
     sm = SerializationManager('attributes_schema', serializer_scheme='msgpack')
     mock_sm_rs.assert_called_once_with('attributes_schema')
-    assert isinstance(sm.serializer, msgpack.MsgpackSerializer)
+    assert isinstance(sm.serializer, msgpack_serializer.MsgpackSerializer)
 
 
 def test_sm_register_serializables(serialization_manager):

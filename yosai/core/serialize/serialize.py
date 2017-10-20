@@ -20,8 +20,8 @@ under the License.
 from yosai.core import serialize_abcs
 
 from yosai.core.serialize.serializers import (
-    json,
-    msgpack,
+    json_serializer,
+    msgpack_serializer,
     cbor,
 )
 
@@ -39,8 +39,8 @@ class SerializationManager:
         """
         # add encoders here:
         self.serializers = {'cbor': cbor.CBORSerializer,
-                            'msgpack': msgpack.MsgpackSerializer,
-                            'json': json.JSONSerializer}
+                            'msgpack': msgpack_serializer.MsgpackSerializer,
+                            'json': json_serializer.JSONSerializer}
 
         self.serializer = self.serializers[serializer_scheme]()
         self.register_serializables(session_attributes)

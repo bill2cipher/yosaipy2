@@ -22,7 +22,7 @@ import six
 
 
 @six.add_metaclass(ABCMeta)
-class AccountStore:
+class AccountStore(object):
     pass
 
 
