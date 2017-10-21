@@ -28,7 +28,6 @@ except IOError:
 install_requires = [
     'PyYAML',
     'pytz',
-    'PyPubSub',
     'argon2_cffi',
     'bcrypt',
     'passlib',
@@ -37,7 +36,7 @@ install_requires = [
     'cbor2',
     'six',
     'pyramid',
-    'wtforms',
+    'wtforms', 'blinker',
 ]
 
 setup(

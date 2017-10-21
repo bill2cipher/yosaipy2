@@ -18,7 +18,7 @@ under the License.
 """
 import logging
 
-from pubsub import pub as event_bus
+from yosaipy2.core.event.event_bus import event_bus
 
 EVENT_TOPIC = event_bus.AUTO_TOPIC
 

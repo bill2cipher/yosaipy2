@@ -46,6 +46,12 @@ from .exceptions import (
     YosaiException,
 )
 
+from yosaipy2.core.event.event import (
+    EVENT_TOPIC,
+    EventLogger,
+    event_bus,
+)
+
 from yosaipy2.core.serialize import abcs as serialize_abcs
 from yosaipy2.core.event import abcs as event_abcs
 from yosaipy2.core.account import abcs as account_abcs

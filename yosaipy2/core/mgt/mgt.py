@@ -27,7 +27,6 @@ from yosaipy2.core import (
     AuthenticationException,
     DefaultAuthenticator,
     DelegatingSubject,
-    EventLogger,
     NativeSessionManager,
     SessionKey,
     SubjectContext,
@@ -187,7 +186,7 @@ class AbstractRememberMeManager(mgt_abcs.RememberMeManager):
         Returns the account's identifier and ignores the subject argument
 
         :param subject: the subject whose identifiers are remembered
-        :param account: the account resulting from the successful authentication attempt
+        :param account_id: the account resulting from the successful authentication attempt
         :returns: the IdentifierCollection to remember
         """
         # This is a placeholder.  A more meaningful logic is implemented by subclasses
@@ -247,7 +246,7 @@ class AbstractRememberMeManager(mgt_abcs.RememberMeManager):
         If a cipher_service is available, it will be used to first decrypt the
         serialized message.  Then, the bytes are deserialized and returned.
 
-        :param serialized:      the bytes to decrypt and then deserialize
+        :param encrypted:      the bytes to decrypt and then deserialize
         :param subject_context: the contextual data, that is being
                                 used to construct a Subject instance
         :returns: the de-serialized identifier
@@ -370,7 +369,6 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
         if serialization_manager and self.remember_me_manager:
             self.remember_me_manager.serialization_manager = serialization_manager
 
-        self.event_logger = EventLogger(event_bus)
         self.apply_event_bus(event_bus)
 
         self.apply_cache_handler(cache_handler)
@@ -389,10 +387,6 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
         self.session_manager.apply_event_bus(eventbus)
 
     def apply_realms(self):
-        """
-        :realm_s: an immutable collection of one or more realms
-        :type realm_s: tuple
-        """
         self.authenticator.init_realms(self.realms)
         self.authorizer.init_realms(self.realms)
 
@@ -543,11 +537,11 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
         :type authc_token:  subject_abcs.AuthenticationToken
 
         :param account_id:  the identifiers of a newly authenticated user
-        :type account:  SimpleIdentifierCollection
+        :type account_id:  SimpleIdentifierCollection
 
         :param existing_subject: the existing Subject instance that initiated the
                                  authentication attempt
-        :type subject:  subject_abcs.Subject
+        :type subject_context:  subject_abcs.Subject
 
         :type subject_context:  subject_abcs.SubjectContext
 
@@ -562,7 +556,7 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
             context.authentication_token = authc_token
             context.account_id = account_id
 
-            if (existing_subject):
+            if existing_subject:
                 context.subject = existing_subject
 
         else:
@@ -588,7 +582,7 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
 
     def remember_me_successful_login(self, authc_token, account_id, subject):
         rmm = self.remember_me_manager
-        if (rmm is not None):
+        if rmm is not None:
             try:
                 rmm.on_successful_login(subject, authc_token, account_id)
             except Exception:
@@ -609,7 +603,7 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
 
     def remember_me_failed_login(self, authc_token, authc_exc, subject):
         rmm = self.remember_me_manager
-        if (rmm is not None):
+        if rmm is not None:
             try:
                 rmm.on_failed_login(subject, authc_token, authc_exc)
 
@@ -622,7 +616,7 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
 
     def remember_me_logout(self, subject):
         rmm = self.remember_me_manager
-        if (rmm is not None):
+        if rmm is not None:
             try:
                 rmm.on_logout(subject)
             except Exception as ex:
@@ -647,7 +641,7 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
 
         Sessionless environments must pass all authentication tokens to login
         at once.
-
+        :param subject:
         :param authc_token: the authenticationToken to process for the login attempt
         :type authc_token:  authc_abcs.authenticationToken
 
@@ -748,7 +742,7 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
                                 SecurityManager instance
         :returns: the SubjectContext
         """
-        if (subject_context.resolve_security_manager() is not None):
+        if subject_context.resolve_security_manager() is not None:
             msg = ("Subject Context resolved a security_manager "
                    "instance, so not re-assigning.  Returning.")
             logger.debug(msg)
@@ -778,8 +772,8 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
                                 Session instance
         :returns: the context
         """
-        if (subject_context.resolve_session() is not None):
-            msg = ("Context already contains a session.  Returning.")
+        if subject_context.resolve_session() is not None:
+            msg = "Context already contains a session.  Returning."
             logger.debug(msg)
             return subject_context
 
@@ -803,14 +797,14 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
     def resolve_context_session(self, subject_context):
         session_key = self.get_session_key(subject_context)
 
-        if (session_key is not None):
+        if session_key is not None:
             return self.get_session(session_key)
 
         return None
 
     def get_session_key(self, subject_context):
         session_id = subject_context.session_id
-        if (session_id is not None):
+        if session_id is not None:
             return SessionKey(session_id)
         return None
 
@@ -824,7 +818,7 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
         session = subject_context.session
         identifiers = subject_context.resolve_identifiers(session)
 
-        if (not identifiers):
+        if not identifiers:
             msg = ("No identity (identifier_collection) found in the "
                    "subject_context.  Looking for a remembered identity.")
             logger.debug(msg)
@@ -849,15 +843,15 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
     def create_session_context(self, subject_context):
         session_context = {}
 
-        if (not subject_context.is_empty):
+        if not subject_context.is_empty:
             session_context.update(subject_context.__dict__)
 
         session_id = subject_context.session_id
-        if (session_id):
+        if session_id:
             session_context['session_id'] = session_id
 
         host = subject_context.resolve_host(None)
-        if (host):
+        if host:
             session_context['host'] = host
 
         return session_context
@@ -872,17 +866,17 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
         directly. However, framework developers might find calling this method
         directly useful in certain cases.
 
-        :param subject the subject to log out:
+        :param subject: the subject to log out:
         :type subject:  subject_abcs.Subject
         """
-        if (subject is None):
+        if subject is None:
             msg = "Subject argument cannot be None."
             raise ValueError(msg)
 
         self.before_logout(subject)
 
         identifiers = copy.copy(subject.identifiers)  # copy is new to yosai
-        if (identifiers):
+        if identifiers:
             msg = ("Logging out subject with primary identifier {0}".format(
                 identifiers.primary_identifier))
             logger.debug(msg)
@@ -904,7 +898,7 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
 
     def stop_session(self, subject):
         session = subject.get_session(False)
-        if (session):
+        if session:
             session.stop(subject.identifiers)
 
     def get_remembered_identity(self, subject_context):
