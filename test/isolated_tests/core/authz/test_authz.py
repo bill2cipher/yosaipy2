@@ -461,10 +461,10 @@ def test_mra_notify_event(modular_realm_authorizer_patched, monkeypatch):
 
     mra.notify_event('identifiers', items, topic='AUTHORIZATION.RESULTS')
 
-    mock_bus.sendMessage.assert_called_once_with('AUTHORIZATION.RESULTS',
-                                                 identifiers='identifiers',
-                                                 items=items,
-                                                 logical_operator=None)
+    mock_bus.send_message.assert_called_once_with('AUTHORIZATION.RESULTS',
+                                                  identifiers='identifiers',
+                                                  items=items,
+                                                  logical_operator=None)
 
 
 def test_mra_notify_event_raises(

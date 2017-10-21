@@ -73,7 +73,8 @@ class Permission:
     Representing permissions in this manner is an extremely powerful way to
     express permissions as you can state permissions like:
         *``'blogpost:*:13'``, granting a user permission to perform all actions for blogpost ``13``,
-        *``'blogpost:view,create,edit:*'``, granting a user permission to ``view``, ``create``, or ``edit`` *any* blogpost
+        *``'blogpost:view,create,edit:*'``, granting a user permission to ``view``, ``create``,
+                     or ``edit`` *any* blogpost
         *``'blogpost:*:*'``, granting a user permission to perform *any* action on *any* blogpost
 
     To perform checks against these instance-level permissions, the application
@@ -132,7 +133,7 @@ class Permission:
         return domain
 
 
-class DefaultPermissionVerifier:
+class DefaultPermissionVerifier(object):
     def is_permitted_from_str(self, required, assigned):
         required_perm = Permission(wildcard_perm=required)
         for perm_str in assigned:
@@ -173,7 +174,7 @@ class ModularRealmAuthorizer(authz_abcs.Authorizer):
         self.register_cache_clear_listener()
 
     def assert_realms_configured(self):
-        if (not self.realms):
+        if not self.realms:
             msg = ("Configuration error:  No realms have been configured! "
                    "One or more realms must be present to execute an "
                    "authorization operation.")
@@ -443,10 +444,10 @@ class ModularRealmAuthorizer(authz_abcs.Authorizer):
 
     def notify_event(self, identifiers, items, topic, logical_operator=None):
         try:
-            self.event_bus.sendMessage(topic,
-                                       identifiers=identifiers,
-                                       items=items,
-                                       logical_operator=logical_operator)
+            self.event_bus.send_message(topic,
+                                        identifiers=identifiers,
+                                        items=items,
+                                        logical_operator=logical_operator)
 
         except AttributeError:
             msg = "Could not publish {} event".format(topic)

@@ -31,7 +31,7 @@ def all_realms_successful_strategy(authc_attempt):
     token = authc_attempt.authentication_token
     account = None
     for realm in authc_attempt.realms:
-        if (realm.supports(token)):
+        if realm.supports(token):
             """
             If the realm raises an exception, the loop will short
             circuit, propagating the IncorrectCredentialsException
@@ -54,13 +54,13 @@ def at_least_one_realm_successful_strategy(authc_attempt):
     realm_errors = []
     account = None
     for realm in authc_attempt.realms:
-        if (realm.supports(authc_token)):
+        if realm.supports(authc_token):
             try:
                 account = realm.authenticate_account(authc_token)
             except IncorrectCredentialsException as ex:
                 realm_errors.append(ex)
 
-    if (realm_errors):  # if no successful authentications
+    if realm_errors:  # if no successful authentications
         raise MultiRealmAuthenticationException(realm_errors)
 
     return account
@@ -90,16 +90,16 @@ def first_realm_successful_strategy(authc_attempt):
     realm_errors = []
     account = None
     for realm in authc_attempt.realms:
-        if (realm.supports(authc_token)):
+        if realm.supports(authc_token):
             try:
                 account = realm.authenticate_account(authc_token)
             except Exception as ex:
                 realm_errors.append(ex)
-            if (account):
+            if account:
                 return account
 
-    if (realm_errors):
-        if (len(realm_errors) == 1):
+    if realm_errors:
+        if len(realm_errors) == 1:
             raise realm_errors[0]
 
         else:

@@ -25,7 +25,7 @@ EVENT_TOPIC = event_bus.AUTO_TOPIC
 logger = logging.getLogger(__name__)
 
 
-class EventLogger:
+class EventLogger(object):
     def __init__(self, eventbus):
         eventbus.subscribe(self.log_session_event, 'SESSION.START')
         eventbus.subscribe(self.log_session_event, 'SESSION.STOP')

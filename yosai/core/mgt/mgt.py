@@ -206,12 +206,12 @@ class AbstractRememberMeManager(mgt_abcs.RememberMeManager):
         return self.encrypt(self.serialization_manager.serialize(identifiers))
 
     @abstractmethod
-    def remember_encrypted_identity(subject, encrypted):
+    def remember_encrypted_identity(self, subject, encrypted):
         """
         Persists the identity bytes to a persistent store
 
         :param subject: the Subject for whom the identity is being serialized
-        :param serialized: the serialized bytes to be persisted.
+        :param encrypted: the serialized bytes to be persisted.
         """
         pass
 
@@ -229,7 +229,7 @@ class AbstractRememberMeManager(mgt_abcs.RememberMeManager):
         return identifiers
 
     @abstractmethod
-    def get_remembered_encrypted_identity(subject_context):
+    def get_remembered_encrypted_identity(self, subject_context):
         """
         Based on the given subject context data, retrieves the previously
         persisted serialized identity, or None if there is no available data.

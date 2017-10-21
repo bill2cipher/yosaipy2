@@ -23,8 +23,8 @@ from yosai.core import (
     subject_abcs,
 )
 
-class WebSubjectContext(subject_abcs.SubjectContext):
 
+class WebSubjectContext(subject_abcs.SubjectContext):
     @abstractmethod
     def resolve_web_registry(self):
         pass

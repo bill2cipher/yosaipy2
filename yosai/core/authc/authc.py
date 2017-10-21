@@ -180,7 +180,7 @@ class DefaultAuthenticator(authc_abcs.Authenticator):
 
     def authenticate_account(self, identifiers, authc_token, second_factor_token=None):
         """
-        :type identifiers: SimpleIdentifierCollection or None
+        :type identifiers:
 
         :returns: account_id (identifiers) if the account authenticates
         :rtype: SimpleIdentifierCollection
@@ -201,7 +201,7 @@ class DefaultAuthenticator(authc_abcs.Authenticator):
 
         try:
             account = self.do_authenticate_account(authc_token)
-            if (account is None):
+            if account is None:
                 msg2 = ("No account returned by any configured realms for "
                         "submitted authentication token [{0}]".
                         format(authc_token))
@@ -304,13 +304,14 @@ class DefaultAuthenticator(authc_abcs.Authenticator):
 
     def notify_event(self, identifier, topic):
         try:
-            self.event_bus.sendMessage(topic, identifier=identifier)
+            self.event_bus.send_message(topic, identifier=identifier)
         except AttributeError:
             msg = "Could not publish {} event".format(topic)
             raise AttributeError(msg)
 
     def validate_locked(self, authc_token, failed_attempts):
         """
+        :param authc_token:
         :param failed_attempts:  the failed attempts for this type of credential
         """
         if self.locking_limit and len(failed_attempts) > self.locking_limit:

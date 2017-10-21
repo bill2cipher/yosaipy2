@@ -20,6 +20,7 @@ under the License.
 from abc import ABCMeta, abstractmethod
 import six
 
+
 @six.add_metaclass(ABCMeta)
 class WebRegistry:
     """

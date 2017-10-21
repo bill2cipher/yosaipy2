@@ -48,7 +48,7 @@ class WebSessionKey(collections.namedtuple('WebSessionKey', 'session_id, web_reg
 class WebSimpleSession(SimpleSession):
 
     def __init__(self, csrf_token, absolute_timeout, idle_timeout, host=None):
-        super().__init__(absolute_timeout, idle_timeout, host=host)
+        super(WebSimpleSession, self).__init__(absolute_timeout, idle_timeout, host=host)
         self.set_internal_attribute('flash_messages',
                                     collections.defaultdict(list))
         self.set_internal_attribute('csrf_token', csrf_token)
@@ -87,8 +87,7 @@ class WebSimpleSession(SimpleSession):
 class WebSessionHandler(NativeSessionHandler):
 
     def __init__(self, delete_invalid_sessions=True):
-        super().__init__(delete_invalid_sessions=delete_invalid_sessions)
-
+        super(WebSessionHandler, self).__init__(delete_invalid_sessions=delete_invalid_sessions)
         self.is_session_id_cookie_enabled = True
 
     # overridden
@@ -96,7 +95,7 @@ class WebSessionHandler(NativeSessionHandler):
         """
         Stores the Session's ID, usually as a Cookie, to associate with future
         requests.
-
+        :param session_context:
         :param session: the session that was just ``createSession`` created
         """
         session_id = session.session_id
@@ -120,7 +119,7 @@ class WebSessionHandler(NativeSessionHandler):
 
     # overridden
     def on_stop(self, session, session_key):
-        super().on_stop(session, session_key)
+        super(WebSessionHandler, self).on_stop(session, session_key)
         msg = ("Session has been stopped (subject logout or explicit stop)."
                "  Removing session ID cookie.")
         logger.debug(msg)
@@ -135,7 +134,7 @@ class WebSessionHandler(NativeSessionHandler):
         :type ese: ExpiredSessionException
         :type session_key:  session_abcs.SessionKey
         """
-        super().on_expiration(session, ese, session_key)
+        super(WebSessionHandler, self).on_expiration(session, ese, session_key)
         self.on_invalidation(session_key)
 
     # overridden
@@ -143,10 +142,10 @@ class WebSessionHandler(NativeSessionHandler):
         """
         :type session_key:  session_abcs.SessionKey
         :type session: session_abcs.Session
-        :type ese: InvalidSessionException
+        :type ise: InvalidSessionException
         """
         if session:
-            super().on_invalidation(session, ise, session_key)
+            super(WebSessionHandler, self).on_invalidation(session, ise, session_key)
 
         web_registry = session_key.web_registry
 
@@ -158,8 +157,7 @@ class WebSessionManager(NativeSessionManager):
     Web-application capable SessionManager implementation
     """
     def __init__(self, settings):
-        super().__init__(settings,
-                         session_handler=WebSessionHandler())
+        super(WebSessionManager, self).__init__(settings, session_handler=WebSessionHandler())
 
     # new to yosai (fixation countermeasure)
     def recreate_session(self, session_key):
@@ -247,7 +245,7 @@ class WebSessionManager(NativeSessionManager):
 class WebDelegatingSession(DelegatingSession):
 
     def __init__(self, session_manager, session_key):
-        super().__init__(session_manager, session_key)
+        super(WebDelegatingSession, self).__init__(session_manager, session_key)
 
     # new to yosai
     def new_csrf_token(self):
@@ -304,7 +302,7 @@ class WebSessionStorageEvaluator(SessionStorageEvaluator):
     """
 
     def __init__(self):
-        super().__init__()  # new to yosai
+        super(WebSessionStorageEvaluator, self).__init__()  # new to yosai
         self.session_manager = None
 
     # overridden:

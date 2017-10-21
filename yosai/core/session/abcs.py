@@ -22,7 +22,7 @@ import six
 
 
 @six.add_metaclass(ABCMeta)
-class Session:
+class Session(object):
     """
     A Session is a stateful data context associated with a single
     Subject's (user, daemon process, etc) interaction with a software system
@@ -116,7 +116,7 @@ class Session:
 
 
 @six.add_metaclass(ABCMeta)
-class SessionListener:
+class SessionListener(object):
     """
     Interface to be implemented by components that wish to be notified of
     events that occur during a Session's life cycle.
@@ -167,7 +167,7 @@ class SessionListener:
 
 # moved from /mgt:
 @six.add_metaclass(ABCMeta)
-class SessionStorageEvaluator:
+class SessionStorageEvaluator(object):
     """
     Evaluates whether Yosai may use a Subject's Session to persist that
     Subject's internal state.
@@ -212,7 +212,7 @@ class ValidatingSession(Session):
 
 
 @six.add_metaclass(ABCMeta)
-class SessionFactory:
+class SessionFactory(object):
     """
     A simple factory class that instantiates concrete Session instances.  This
     is mainly a mechanism to allow instances to be created at runtime if they
@@ -236,16 +236,16 @@ class SessionFactory:
 
 
 @six.add_metaclass(ABCMeta)
-class SessionIDGenerator:
+class SessionIDGenerator(object):
     @classmethod
     @abstractmethod
-    def generate_id(self, session):
+    def generate_id(cls, session):
         pass
 
 
 # new to yosai:
 @six.add_metaclass(ABCMeta)
-class SessionHandler:
+class SessionHandler(object):
     @abstractmethod
     def create_session(self, session):
         pass
@@ -300,7 +300,7 @@ class SessionHandler:
 
 
 @six.add_metaclass(ABCMeta)
-class SessionManager:
+class SessionManager(object):
     """
     A SessionManager manages the creation, maintenance, and clean-up of all
     application Sessions
@@ -497,7 +497,7 @@ class NativeSessionManager(SessionManager):
 
 
 @six.add_metaclass(ABCMeta)
-class SessionKey:
+class SessionKey(object):
     @property
     @abstractmethod
     def session_id(self):
@@ -572,7 +572,7 @@ class ValidatingSessionManager(SessionManager):
 
 
 @six.add_metaclass(ABCMeta)
-class SessionValidationScheduler:
+class SessionValidationScheduler(object):
     """
     Returns True if this Scheduler is enabled and ready to begin validation at
     the appropriate time, False otherwise.
@@ -596,7 +596,7 @@ class SessionValidationScheduler:
 
 
 @six.add_metaclass(ABCMeta)
-class SessionStore:
+class SessionStore(object):
     """
     Data Access Object design pattern specification to enable Session
     access to an EIS (Enterprise Information System).  It provides your four

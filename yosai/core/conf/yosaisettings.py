@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 # largely copied from django:
 
-class LazySettings:
+class LazySettings(object):
     """
     LazyConfig proxies the custom-else-default settings configuration process.
     Required settings that are not user-defined (custom) will default to those

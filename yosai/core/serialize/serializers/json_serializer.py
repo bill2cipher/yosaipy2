@@ -4,7 +4,7 @@ from yosai.core import serialize_abcs, resolve_reference, qualified_name
 from collections import OrderedDict
 from json.decoder import JSONDecoder
 from json.encoder import JSONEncoder
-from typing import Dict, Optional, Any, Callable
+from typing import Optional, Any, Callable
 import six
 
 from yosai.core.serialize.marshalling import default_marshaller, default_unmarshaller
@@ -107,7 +107,7 @@ class JSONSerializer(serialize_abcs.CustomizableSerializer):
                 unmarshaller(instance, obj['state'])
                 return instance
             except KeyError:
-                value = 'no unmarshaller found for type "{}"'.format(typename)
+                value = LookupError('no unmarshaller found for type "{}"'.format(typename))
                 six.raise_from(value, None)
         else:
             return obj

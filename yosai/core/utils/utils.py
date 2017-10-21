@@ -23,6 +23,7 @@ import collections
 import datetime
 import time
 import threading
+import six
 
 
 class ThreadStateManager(threading.local):
@@ -30,7 +31,7 @@ class ThreadStateManager(threading.local):
         self.stack = []
 
 
-class memoized_property:
+class memoized_property(object):
     """A read-only @property that is only evaluated once.  Copied from
        dogpile.cache (created by Mike Bayer et al)."""
 
@@ -195,8 +196,9 @@ def resolve_reference(ref):
     try:
         obj = import_module(modulename)
     except ImportError as e:
-        raise LookupError(
-            'error resolving reference {}: could not import module'.format(ref)) from e
+        value = LookupError('error resolving reference {}: could not import module'.format(ref))
+        six.raise_from(value, e)
+        return
 
     try:
         for name in rest.split('.'):

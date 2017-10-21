@@ -22,7 +22,7 @@ import six
 
 
 @six.add_metaclass(ABCMeta)
-class EventBus:
+class EventBus(object):
     """
     An event bus can publish events to event subscribers as well as provide a
     mechanism for registering and unregistering event subscribers.
@@ -37,7 +37,7 @@ class EventBus:
     -----------------
     If a component wishes to publish events to other components:::
 
-        event_bus.sendMessage(topic, *kwargs)
+        event_bus.send_message(topic, *kwargs)
 
     The event bus dispatches the event 'message' to components that wish to receive
     events of that type (known as subscribers).
@@ -55,7 +55,7 @@ class EventBus:
     """
 
     @abstractmethod
-    def sendMessage(self, topic_name, **kwargs):
+    def send_message(self, topic_name, **kwargs):
         pass
 
     @abstractmethod

@@ -29,7 +29,6 @@ from yosai.core import (
     ThreadStateManager,
     global_yosai_context,
     global_subject_context,
-    memoized_property,
 )
 
 from yosai.web import (
@@ -41,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 
 class WebSubjectContext(SubjectContext,
-                               web_subject_abcs.WebSubjectContext):
+                        web_subject_abcs.WebSubjectContext):
     """
     Default ``WebSubjectContext`` implementation that supports a web registry,
     facilitating cookie and remote-host management
@@ -51,13 +50,13 @@ class WebSubjectContext(SubjectContext,
         """
         :subject_context:  WebSubjectContext
         """
-        super().__init__(yosai, security_manager)
+        super(WebSubjectContext, self).__init__(yosai, security_manager)
 
         self.web_registry = web_registry
 
     # overridden:
     def resolve_host(self, session=None):
-        host = super().resolve_host(session)
+        host = super(WebSubjectContext, self).resolve_host(session)
 
         if not host:
             return self.resolve_web_registry().remote_host
@@ -92,17 +91,17 @@ class WebDelegatingSubject(DelegatingSubject):
 
     Unlike DelegatingSubject, WebDelegatingSubject requires a web_registry attribute
     """
+
     def __init__(self, identifiers=None, remembered=False, authenticated=False,
                  host=None, session=None, session_creation_enabled=True,
                  security_manager=None, web_registry=None):
-
-        super().__init__(identifiers=identifiers,
-                         remembered=False,
-                         authenticated=authenticated,
-                         host=host,
-                         session=session,
-                         session_creation_enabled=session_creation_enabled,
-                         security_manager=security_manager)
+        super(WebDelegatingSubject, self).__init__(identifiers=identifiers,
+                                                   remembered=False,
+                                                   authenticated=authenticated,
+                                                   host=host,
+                                                   session=session,
+                                                   session_creation_enabled=session_creation_enabled,
+                                                   security_manager=security_manager)
 
         self.web_registry = web_registry
 
@@ -139,9 +138,9 @@ class WebYosai(Yosai):
     """
 
     def __init__(self, env_var=None, file_path=None, session_attributes=None):
-        super().__init__(env_var=env_var,
-                         file_path=file_path,
-                         session_attributes=session_attributes)
+        super(WebYosai, self).__init__(env_var=env_var,
+                                       file_path=file_path,
+                                       session_attributes=session_attributes)
 
         # web_registry objects are injected with secret as context is set:
         registry_settings = WebRegistrySettings(self.settings)
@@ -243,6 +242,7 @@ class WebYosai(Yosai):
                 raise WebYosai.get_current_webregistry().raise_unauthorized(msg)
 
             return fn(*args, **kwargs)
+
         return wrap
 
     @staticmethod
@@ -253,9 +253,9 @@ class WebYosai(Yosai):
 
         This method essentially ensures that subject.identifiers IS NOT None
         """
+
         @functools.wraps(fn)
         def wrap(*args, **kwargs):
-
             subject = WebYosai.get_current_subject()
 
             if subject.identifiers is None:
@@ -265,6 +265,7 @@ class WebYosai(Yosai):
                        "ACCESS DENIED.")
                 raise WebYosai.get_current_webregistry().raise_unauthorized(msg)
             return fn(*args, **kwargs)
+
         return wrap
 
     @staticmethod
@@ -276,9 +277,9 @@ class WebYosai(Yosai):
 
         This method essentially ensures that subject.identifiers IS None
         """
+
         @functools.wraps(fn)
         def wrap(*args, **kwargs):
-
             subject = WebYosai.get_current_subject()
 
             if subject.identifiers is not None:
@@ -289,6 +290,7 @@ class WebYosai(Yosai):
                 raise WebYosai.get_current_webregistry().raise_unauthorized(msg)
 
             return fn(*args, **kwargs)
+
         return wrap
 
     @staticmethod
@@ -313,6 +315,7 @@ class WebYosai(Yosai):
         Basic Example:
             requires_permission(['domain1:action1,action2'])
         """
+
         def outer_wrap(fn):
             @functools.wraps(fn)
             def inner_wrap(*args, **kwargs):
@@ -333,7 +336,9 @@ class WebYosai(Yosai):
                     raise WebYosai.get_current_webregistry().raise_forbidden(msg)
 
                 return fn(*args, **kwargs)
+
             return inner_wrap
+
         return outer_wrap
 
     @staticmethod
@@ -364,6 +369,7 @@ class WebYosai(Yosai):
         Basic Example:
             requires_permission(['{kwarg.domainid}:action1,action2'])
         """
+
         def outer_wrap(fn):
             @functools.wraps(fn)
             def inner_wrap(*args, **kwargs):
@@ -388,7 +394,9 @@ class WebYosai(Yosai):
                     raise WebYosai.get_current_webregistry().raise_forbidden(msg)
 
                 return fn(*args, **kwargs)
+
             return inner_wrap
+
         return outer_wrap
 
     @staticmethod
@@ -412,6 +420,7 @@ class WebYosai(Yosai):
         Basic Example:
             requires_role('physician')
         """
+
         def outer_wrap(fn):
             @functools.wraps(fn)
             def inner_wrap(*args, **kwargs):
@@ -433,7 +442,9 @@ class WebYosai(Yosai):
                     raise WebYosai.get_current_webregistry().raise_forbidden(msg)
 
                 return fn(*args, **kwargs)
+
             return inner_wrap
+
         return outer_wrap
 
 

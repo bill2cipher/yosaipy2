@@ -127,14 +127,14 @@ class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
 
     def lock_account(self, identifier):
         """
-        :type account: Account
+        :type identifier: Account
         """
         locked_time = int(time.time() * 1000)  # milliseconds
         self.account_store.lock_account(identifier, locked_time)
 
     def unlock_account(self, identifier):
         """
-        :type account: Account
+        :type identifier: Account
         """
         self.account_store.unlock_account(identifier)
 
@@ -289,7 +289,7 @@ class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
     def get_authzd_permissions(self, identifier, perm_domain):
         """
         :type identifier:  str
-        :type domain:  str
+        :type perm_domain:  str
 
         :returns: a list of relevant json blobs, each a list of permission dicts
         """

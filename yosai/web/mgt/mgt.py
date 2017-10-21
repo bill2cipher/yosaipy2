@@ -62,14 +62,14 @@ class WebSecurityManager(NativeSecurityManager):
         :type realms: tuple
         """
 
-        super().__init__(yosai,
-                         settings,
-                         realms=realms,
-                         cache_handler=cache_handler,
-                         serialization_manager=serialization_manager,
-                         session_manager=WebSessionManager(settings),
-                         subject_store=SubjectStore(WebSessionStorageEvaluator()),
-                         remember_me_manager=CookieRememberMeManager(settings))
+        super(WebSecurityManager, self).__init__(yosai,
+                                                 settings,
+                                                 realms=realms,
+                                                 cache_handler=cache_handler,
+                                                 serialization_manager=serialization_manager,
+                                                 session_manager=WebSessionManager(settings),
+                                                 subject_store=SubjectStore(WebSessionStorageEvaluator()),
+                                                 remember_me_manager=CookieRememberMeManager(settings))
 
     def create_subject_context(self, subject):
         web_registry = subject.web_registry
@@ -89,11 +89,11 @@ class WebSecurityManager(NativeSecurityManager):
             session_id = subject_context.session_id
             return WebSessionKey(session_id, web_registry=web_registry)
         except AttributeError:  # not dealing with a WebSubjectContext
-            return super().get_session_key(subject_context)
+            return super(WebSecurityManager, self).get_session_key(subject_context)
 
     # overridden
     def before_logout(self, subject):
-        super().before_logout(subject)
+        super(WebSecurityManager, self).before_logout(subject)
         self.remove_identity(subject)
 
     def remove_identity(self, subject):
@@ -107,7 +107,7 @@ class WebSecurityManager(NativeSecurityManager):
         # Generating a new session_id at successful login is a recommended
         # countermeasure to a session fixation
         subject.session = subject.session.recreate_session()
-        super().remember_me_successful_login(authc_token, account_id, subject)
+        super(WebSecurityManager, self).remember_me_successful_login(authc_token, account_id, subject)
 
     # overridden
     def do_create_subject(self, subject_context):
@@ -120,7 +120,7 @@ class WebSecurityManager(NativeSecurityManager):
                   SubjectContext data map
         """
         if not isinstance(subject_context, web_subject_abcs.WebSubjectContext):
-            return super().do_create_subject(subject_context=subject_context)
+            return super(WebSecurityManager, self).do_create_subject(subject_context=subject_context)
 
         security_manager = subject_context.resolve_security_manager()
         session = subject_context.resolve_session()
@@ -150,8 +150,9 @@ class CookieRememberMeManager(AbstractRememberMeManager):
     Remembers a Subject's identity by saving the Subject's identifiers to a Cookie
     for later retrieval.  The Cookie is accessed through the WebRegistry api.
     """
+
     def __init__(self, settings):
-        super().__init__(settings)
+        super(CookieRememberMeManager, self).__init__(settings)
 
     def remember_encrypted_identity(self, subject, encrypted):
         """
@@ -166,8 +167,8 @@ class CookieRememberMeManager(AbstractRememberMeManager):
 
         :param subject: the Subject for which the identity is being serialized
 
-        :param serialized: the serialized bytes to persist
-        :type serialized: bytearray
+        :param encrypted: the serialized bytes to persist
+        :type encrypted: bytearray
         """
         try:
             # base 64 encode it and store as a cookie:
@@ -205,7 +206,7 @@ class CookieRememberMeManager(AbstractRememberMeManager):
 
         :returns: an encrypted, serialized identifier collection
         """
-        if (self.is_identity_removed(subject_context)):
+        if self.is_identity_removed(subject_context):
             if not isinstance(subject_context, web_subject_abcs.WebSubjectContext):
                 msg = ("SubjectContext argument is not an HTTP-aware instance. "
                        "This is required to obtain a web registry "
@@ -234,7 +235,7 @@ class CookieRememberMeManager(AbstractRememberMeManager):
             # no cookie set - new site visitor?
             return None
 
-    #    Currently, both subject and subject_context serving any function
+    # Currently, both subject and subject_context serving any function
     #    after porting to Python (TBD):
     def forget_identity(self, subject=None, subject_context=None):
         """

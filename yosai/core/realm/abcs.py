@@ -19,14 +19,11 @@ under the License.
 
 from abc import ABCMeta, abstractmethod
 import six
-from yosai.core import (
-    account_abcs,
-    authc_abcs,
-)
+from yosai.core import authc_abcs
 
 
 @six.add_metaclass(ABCMeta)
-class Realm:
+class Realm(object):
     """
     A ``Realm`` access application-specific security entities such as accounts,
     roles, and permissions to perform authentication and authorization operations.
@@ -134,6 +131,7 @@ class AuthorizingRealm(Realm):
     def is_permitted(self, identifiers, permission_s):
         """
         :type identifiers:  SimpleRealmCollection
+        :param permission_s:
         """
         pass
 
@@ -141,6 +139,7 @@ class AuthorizingRealm(Realm):
     def has_role(self, identifiers, role_s):
         """
         :type identifiers:  SimpleRealmCollection
+        :param role_s:
         """
         pass
 

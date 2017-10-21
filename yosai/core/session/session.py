@@ -69,7 +69,7 @@ class AbstractSessionStore(session_abcs.SessionStore):
 
     def generate_session_id(self):
         """
-        :param session: the new session instance for which an ID will be
+        :return: the new session instance for which an ID will be
                         generated and then assigned
         """
         return sha256(sha512(urandom(20)).digest()).hexdigest()
@@ -80,7 +80,7 @@ class AbstractSessionStore(session_abcs.SessionStore):
         return session_id
 
     def verify_session_id(self, session_id):
-        if (session_id is None):
+        if session_id is None:
             msg = ("session_id returned from do_create implementation "
                    "is None. Please verify the implementation.")
             raise ValueError(msg)
@@ -234,7 +234,7 @@ class CachingSessionStore(AbstractSessionStore):
         # for write-through caching:
         # self._do_update(session)
 
-        if (session.is_valid):
+        if session.is_valid:
             self._cache(session, session.session_id)
 
         else:
@@ -311,7 +311,7 @@ class SimpleSession(session_abcs.ValidatingSession,
 
     @property
     def internal_attribute_keys(self):
-        if (self.internal_attributes is None):
+        if self.internal_attributes is None:
             return None
         return set(self.internal_attributes)  # a set of keys
 
@@ -331,7 +331,7 @@ class SimpleSession(session_abcs.ValidatingSession,
 
     @property
     def is_valid(self):
-        return (not self.is_stopped and not self.is_expired)
+        return not self.is_stopped and not self.is_expired
 
     @property
     def is_absolute_timed_out(self):
@@ -358,11 +358,11 @@ class SimpleSession(session_abcs.ValidatingSession,
         determines whether a Session has been inactive/idle for too long a time
         OR exceeds the absolute time that a Session may exist
         """
-        if (self.is_expired):
+        if self.is_expired:
             return True
 
         try:
-            if (not self.last_access_time):
+            if not self.last_access_time:
                 msg = ("session.last_access_time for session with id [" +
                        str(self.session_id) + "] is null. This value must be"
                                               "set at least once, preferably at least upon "
@@ -395,7 +395,7 @@ class SimpleSession(session_abcs.ValidatingSession,
 
     def validate(self):
         # check for stopped:
-        if (self.is_stopped):
+        if self.is_stopped:
             # timestamp is set, so the session is considered stopped:
             msg = ("Session with id [" + str(self.session_id) + "] has been "
                                                                 "explicitly stopped.  No further interaction under "
@@ -403,7 +403,7 @@ class SimpleSession(session_abcs.ValidatingSession,
             raise StoppedSessionException(msg)  # subclass of InvalidSessionException
 
         # check for expiration
-        if (self.is_timed_out()):
+        if self.is_timed_out():
             self.expire()
 
             # throw an exception explaining details of why it expired:
@@ -430,7 +430,7 @@ class SimpleSession(session_abcs.ValidatingSession,
             raise IdleExpiredSessionException(msg2)
 
     def get_internal_attribute(self, key):
-        if (not self.internal_attributes):
+        if not self.internal_attributes:
             return None
 
         return self.internal_attributes.get(key)
@@ -442,7 +442,7 @@ class SimpleSession(session_abcs.ValidatingSession,
         self.internal_attributes.update(key_values)
 
     def remove_internal_attribute(self, key):
-        if (not self.internal_attributes):
+        if not self.internal_attributes:
             return None
         else:
             return self.internal_attributes.pop(key, None)
@@ -456,8 +456,8 @@ class SimpleSession(session_abcs.ValidatingSession,
     # new to yosai
     def get_attributes(self, keys):
         """
-        :param attributes: the keys of attributes to get from the session
-        :type attributes: list of strings
+        :param keys: the keys of attributes to get from the session
+        :type keys: list of strings
 
         :returns: a dict containing the attributes requested, if they exist
         """
@@ -480,8 +480,8 @@ class SimpleSession(session_abcs.ValidatingSession,
     # new to yosai
     def remove_attributes(self, keys):
         """
-        :param attributes: the keys of attributes to remove from the session
-        :type attributes: list of strings
+        :param keys: the keys of attributes to remove from the session
+        :type keys: list of strings
 
         :returns: a list of popped attribute values
         """
@@ -568,7 +568,7 @@ class DelegatingSession(session_abcs.Session):
 
     @property
     def start_timestamp(self):
-        if (not self._start_timestamp):
+        if not self._start_timestamp:
             self._start_timestamp = self.session_manager.get_start_timestamp(
                 self.session_key)
         return self._start_timestamp
@@ -595,7 +595,7 @@ class DelegatingSession(session_abcs.Session):
 
     @property
     def host(self):
-        if (not self._host):
+        if not self._host:
             self._host = self.session_manager.get_host(self.session_key)
 
         return self._host
@@ -716,7 +716,7 @@ class NativeSessionHandler(session_abcs.SessionHandler):
         :returns: SimpleSession
         """
         session_id = session_key.session_id
-        if (session_id is None):
+        if session_id is None:
             msg = ("Unable to resolve session ID from SessionKey [{0}]."
                    "Returning null to indicate a session could not be "
                    "found.".format(session_key))
@@ -725,7 +725,7 @@ class NativeSessionHandler(session_abcs.SessionHandler):
 
         session = self.session_store.read(session_id)
 
-        if (session is None):
+        if session is None:
             # session ID was provided, meaning one is expected to be found,
             # but we couldn't find one:
             msg2 = "Could not find session with ID [{0}]".format(session_id)
@@ -745,7 +745,7 @@ class NativeSessionHandler(session_abcs.SessionHandler):
 
         session = self._retrieve_session(session_key)
 
-        if (session is not None):
+        if session is not None:
             self.validate(session, session_key)
 
         return session
@@ -801,7 +801,7 @@ class NativeSessionHandler(session_abcs.SessionHandler):
 
     def after_stopped(self, session):
         # this appears to be redundant
-        if (self.delete_invalid_sessions):
+        if self.delete_invalid_sessions:
             self.delete(session)
 
     def on_expiration(self, session, expired_session_exception=None,
@@ -812,7 +812,7 @@ class NativeSessionHandler(session_abcs.SessionHandler):
             1) All three arguments passed = session + ese + session_key
             2) Only session passed as an argument
         """
-        if (expired_session_exception and session_key):
+        if expired_session_exception and session_key:
             try:
                 self.on_change(session)
                 msg = "Session with id [{0}] has expired.". \
@@ -837,12 +837,12 @@ class NativeSessionHandler(session_abcs.SessionHandler):
             raise ValueError(msg)
 
     def after_expired(self, session):
-        if (self.delete_invalid_sessions):
+        if self.delete_invalid_sessions:
             self.delete(session)
 
     def on_invalidation(self, session, ise, session_key):
         # session exception hierarchy:  invalid -> stopped -> expired
-        if (isinstance(ise, ExpiredSessionException)):
+        if isinstance(ise, ExpiredSessionException):
             self.on_expiration(session, ise, session_key)
             return
 
@@ -866,11 +866,8 @@ class NativeSessionHandler(session_abcs.SessionHandler):
         self.session_store.update(session)
 
     def notify_event(self, session_info, topic):
-        """
-        :type identifiers:  SimpleIdentifierCollection
-        """
         try:
-            self.event_bus.sendMessage(topic, items=session_info)
+            self.event_bus.send_message(topic, items=session_info)
         except AttributeError:
             msg = "Could not publish {} event".format(topic)
             raise AttributeError(msg)
@@ -940,7 +937,7 @@ class NativeSessionManager(session_abcs.NativeSessionManager):
     def stop(self, session_key, identifiers):
         session = self._lookup_required_session(session_key)
         try:
-            msg = ("Stopping session with id [{0}]").format(session.session_id)
+            msg = "Stopping session with id [{0}]".format(session.session_id)
             logger.debug(msg)
 
             session.stop()
@@ -1005,7 +1002,7 @@ class NativeSessionManager(session_abcs.NativeSessionManager):
         """
         # a SimpleSession:
         session = self.session_handler.do_get_session(key)
-        if (session):
+        if session:
             return self.create_exposed_session(session, key)
         else:
             return None
@@ -1016,7 +1013,7 @@ class NativeSessionManager(session_abcs.NativeSessionManager):
         :returns: SimpleSession
         """
         session = self.session_handler.do_get_session(key)
-        if (not session):
+        if not session:
             msg = ("Unable to locate required Session instance based "
                    "on session_key [" + str(key) + "].")
             raise ValueError(msg)
@@ -1124,13 +1121,14 @@ class NativeSessionManager(session_abcs.NativeSessionManager):
 
     def get_attributes(self, session_key, attribute_keys):
         """
+        :param session_key:
         :type attribute_keys: a list of strings
         """
         return self._lookup_required_session(session_key). \
             get_attributes(attribute_keys)
 
     def set_attribute(self, session_key, attribute_key, value=None):
-        if (value is None):
+        if value is None:
             self.remove_attribute(session_key, attribute_key)
         else:
             session = self._lookup_required_session(session_key)
@@ -1149,12 +1147,13 @@ class NativeSessionManager(session_abcs.NativeSessionManager):
     def remove_attribute(self, session_key, attribute_key):
         session = self._lookup_required_session(session_key)
         removed = session.remove_attribute(attribute_key)
-        if (removed is not None):
+        if removed is not None:
             self.session_handler.on_change(session)
         return removed
 
     def remove_attributes(self, session_key, attribute_keys):
         """
+        :param session_key:
         :type attribute_keys: a list of strings
         """
         session = self._lookup_required_session(session_key)
@@ -1163,18 +1162,15 @@ class NativeSessionManager(session_abcs.NativeSessionManager):
             self.session_handler.on_change(session)
         return removed
 
-    def notify_event(self, session_tuple, topic):
-        """
-        :type identifiers:  SimpleIdentifierCollection
-        """
+    def notify_event(self, session, topic):
         try:
-            self.event_bus.sendMessage(topic, items=session_tuple)
+            self.event_bus.send_message(topic, items=session)
         except AttributeError:
             msg = "Could not publish {} event".format(topic)
             raise AttributeError(msg)
 
 
-class SessionStorageEvaluator:
+class SessionStorageEvaluator(object):
     """
     Global policy determining whether Subject sessions may be used to persist
     Subject state if the Subject's Session does not yet exist.

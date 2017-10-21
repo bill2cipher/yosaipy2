@@ -60,13 +60,13 @@ class SimpleIdentifierCollection(subject_abcs.MutableIdentifierCollection,
 
         if identifier_collection:
             self.add_collection(identifier_collection=identifier_collection)
-        elif (source_name and identifier):
+        elif source_name and identifier:
             self.add(source_name=source_name,
                      identifier=identifier)
 
     @property
     def primary_identifier(self):
-        if (not self._primary_identifier):
+        if not self._primary_identifier:
             try:
                 # obtains the first identifier added via authentication:
                 identifiers = self.source_identifiers.values()
@@ -82,7 +82,7 @@ class SimpleIdentifierCollection(subject_abcs.MutableIdentifierCollection,
     def add(self, source_name, identifier):
         """
         :type source_name: String
-        :type identifiers: String
+        :type identifier: String
         """
         self.source_identifiers[source_name] = identifier
 
@@ -107,7 +107,7 @@ class SimpleIdentifierCollection(subject_abcs.MutableIdentifierCollection,
         """
         myidentifiers = set()
         for identifier in self.source_identifiers.values():
-            if (isinstance(identifier, identifier_class)):
+            if isinstance(identifier, identifier_class):
                 myidentifiers.update([identifier])
         return set(myidentifiers)
 
@@ -120,7 +120,7 @@ class SimpleIdentifierCollection(subject_abcs.MutableIdentifierCollection,
 
     @property
     def is_empty(self):
-        return (not self.source_identifiers.keys())
+        return not self.source_identifiers.keys()
 
     def clear(self):
         self.source_identifiers = collections.OrderedDict()
@@ -144,6 +144,5 @@ class SimpleIdentifierCollection(subject_abcs.MutableIdentifierCollection,
         }
 
     def __setstate__(self, state):
-        self.source_identifiers = \
-            collections.OrderedDict(state['source_identifiers'])
+        self.source_identifiers = collections.OrderedDict(state['source_identifiers'])
         self._primary_identifier = state['_primary_identifier']

@@ -3,13 +3,13 @@ from yosai.core import (
 )
 
 
-class RememberMeSettings:
+class RememberMeSettings(object):
     def __init__(self, settings):
         rmm_config = settings.REMEMBER_ME_CONFIG
         self.default_cipher_key = rmm_config.get('default_cipher_key').encode()
 
 
-class SecurityManagerSettings:
+class SecurityManagerSettings(object):
     """
     SecurityManagerSettings is a settings proxy.  It is new for Yosai.
     It obtains security-manager related configuration from Yosai's global

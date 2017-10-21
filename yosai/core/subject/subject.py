@@ -61,7 +61,7 @@ class SubjectContext(subject_abcs.SubjectContext):
 
     def resolve_security_manager(self):
         security_manager = self.security_manager
-        if (security_manager is None):
+        if security_manager is None:
             msg = ("No SecurityManager available in subject context.  " +
                    "Falling back to Yosai.security_manager for" +
                    " lookup.")
@@ -206,7 +206,7 @@ class DelegatingSubject(subject_abcs.Subject):
         self.authenticated = authenticated
         self.host = host
 
-        if (session is not None):
+        if session is not None:
             session.stop_session_callback = self.session_stopped
             self.session = session
         else:
@@ -242,7 +242,7 @@ class DelegatingSubject(subject_abcs.Subject):
         # expecting a List of IdentifierCollection objects:
         run_as_identifiers = self.get_run_as_identifiers_stack()
 
-        if (not run_as_identifiers):
+        if not run_as_identifiers:
             return self._identifiers
         else:
             return run_as_identifiers[-1]
@@ -252,8 +252,7 @@ class DelegatingSubject(subject_abcs.Subject):
         """
         :type identifiers:  subject_abcs.IdentifierCollection
         """
-        if (isinstance(identifiers, subject_abcs.IdentifierCollection) or
-                    identifiers is None):
+        if isinstance(identifiers, subject_abcs.IdentifierCollection) or (identifiers is None):
             self._identifiers = identifiers
         else:
             raise ValueError('must use IdentifierCollection')
@@ -447,8 +446,8 @@ class DelegatingSubject(subject_abcs.Subject):
             self.session.touch()  # this is used to reset the idle timer (new to yosai)
             return self.session
 
-        if (not self.session and create):
-            if (not self.is_session_creation_enabled()):
+        if not self.session and create:
+            if not self.is_session_creation_enabled():
                 msg = ("Session creation is disabled for the current subject. "
                        "This exception indicates that there is "
                        "either a programming error (using a session when "
@@ -497,7 +496,7 @@ class DelegatingSubject(subject_abcs.Subject):
         """
         :type identifiers:  subject_abcs.IdentifierCollection
         """
-        if (not self.has_identifiers):
+        if not self.has_identifiers:
             msg = ("This subject does not yet have an identity.  Assuming the "
                    "identity of another Subject is only allowed for Subjects "
                    "with an existing identity.  Try logging this subject in "
@@ -519,7 +518,7 @@ class DelegatingSubject(subject_abcs.Subject):
         stack = self.get_run_as_identifiers_stack()  # TBD:  must confirm logic
 
         if stack:
-            if (len(stack) == 1):
+            if len(stack) == 1:
                 previous_identifiers = self.identifiers
             else:
                 # always get the one behind the current
@@ -542,7 +541,7 @@ class DelegatingSubject(subject_abcs.Subject):
 
     def clear_run_as_identities(self):
         session = self.get_session(False)
-        if (session is not None):
+        if session is not None:
             session.remove_internal_attribute(
                 self.run_as_identifiers_session_key)
 
@@ -550,14 +549,14 @@ class DelegatingSubject(subject_abcs.Subject):
         """
         :type identifiers: subject_abcs.IdentifierCollection
         """
-        if (not identifiers):
+        if not identifiers:
             msg = ("Specified Subject identifiers cannot be None or empty "
                    "for 'run as' functionality.")
             raise ValueError(msg)
 
         stack = self.get_run_as_identifiers_stack()
 
-        if (not stack):
+        if not stack:
             stack = []
 
         stack.append(identifiers)
@@ -571,9 +570,9 @@ class DelegatingSubject(subject_abcs.Subject):
         popped = None
         stack = self.get_run_as_identifiers_stack()
 
-        if (stack):
+        if stack:
             popped = stack.pop()
-            if (stack):
+            if stack:
                 # persist the changed stack to the session
                 session = self.get_session()
                 session.set_internal_attribute(self.run_as_identifiers_session_key, stack)
@@ -670,7 +669,7 @@ class SubjectStore:
         :returns: the same Subject passed in (a new Subject instance is
                   not created).
         """
-        if (self.is_session_storage_enabled(subject)):
+        if self.is_session_storage_enabled(subject):
             self.merge_identity(subject)
         else:
             msg = ("Session storage of subject state for Subject [{0}] has "
@@ -730,8 +729,8 @@ class SubjectStore:
 
         existing_identifiers = internal_attributes.get(self.dsc_isk)
 
-        if (not current_identifiers):
-            if (existing_identifiers):
+        if not current_identifiers:
+            if existing_identifiers:
                 to_remove.append(self.dsc_isk)
                 # otherwise both are null or empty - no need to update session
         else:
@@ -741,12 +740,12 @@ class SubjectStore:
 
         existing_authc = internal_attributes.get(self.dsc_ask)
 
-        if (subject.authenticated):
-            if (existing_authc is None):  # either doesnt exist or set None
+        if subject.authenticated:
+            if existing_authc is None:  # either doesnt exist or set None
                 to_set.append([self.dsc_ask, True])
                 # otherwise authc state matches - no need to update the session
         else:
-            if (existing_authc is not None):
+            if existing_authc is not None:
                 # existing doesn't match the current state - remove it:
                 to_remove.append(self.dsc_ask)
                 # otherwise not in the session and not authenticated and
@@ -763,13 +762,13 @@ class SubjectStore:
         :type subject:  subject_abcs.Subject
         """
         session = subject.get_session(False)
-        if (session):
+        if session:
             session.remove_internal_attribute(self.dsc_ask)
             session.remove_internal_attribute(self.dsc_isk)
 
 
 # moved from its own yosai module so as to avoid circular importing:
-class Yosai:
+class Yosai(object):
     def __init__(self, env_var=None, file_path=None, session_attributes=None):
         """
         :type session_attributes: tuple
@@ -1045,7 +1044,7 @@ class Yosai:
 
 
 # new to yosai
-class SecurityManagerCreator:
+class SecurityManagerCreator(object):
     def _init_realms(self, settings, realms):
         try:
             return tuple(realm(account_store=account_store(settings=settings), **verifiers)

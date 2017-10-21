@@ -73,7 +73,7 @@ class MsgpackSerializer(serialize_abcs.CustomizableSerializer):
         try:
             typename, marshaller = self._marshallers[obj_type]
         except KeyError:
-            value = 'no marshaller found for type "{}"'.format(obj_type.__class__.__name__)
+            value = LookupError('no marshaller found for type "{}"'.format(obj_type.__class__.__name__))
             six.raise_from(value, None)
             return
 
@@ -89,7 +89,7 @@ class MsgpackSerializer(serialize_abcs.CustomizableSerializer):
             try:
                 cls, unmarshaller = self._unmarshallers[typename]
             except KeyError:
-                value = 'no unmarshaller found for type "{}"'.format(typename.decode('utf-8'))
+                value = LookupError('no unmarshaller found for type "{}"'.format(typename.decode('utf-8')))
                 six.raise_from(value, None)
                 return
 

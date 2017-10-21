@@ -417,8 +417,8 @@ def test_da_notify_event(default_authenticator, sample_acct_info, monkeypatch):
 
     da.notify_event('identifier', 'SOMETHING HAPPENED')
 
-    mock_event_bus.sendMessage.assert_called_with('SOMETHING HAPPENED',
-                                                  identifier='identifier')
+    mock_event_bus.send_message.assert_called_with('SOMETHING HAPPENED',
+                                                   identifier='identifier')
 
 
 def test_da_notify_event_raises(default_authenticator, sample_acct_info, monkeypatch):

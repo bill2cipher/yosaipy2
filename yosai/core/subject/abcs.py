@@ -22,7 +22,7 @@ import six
 
 
 @six.add_metaclass(ABCMeta)
-class IdentifierCollection:
+class IdentifierCollection(object):
     """
     A collection of all identifiers associated with a corresponding Subject.
     An *identifier* in this context is an identifying attribute, such as a
@@ -163,7 +163,7 @@ class IdentifierMap(IdentifierCollection):
 
 
 @six.add_metaclass(ABCMeta)
-class SubjectContext:
+class SubjectContext(object):
     """
     A SubjectContext is a 'bucket' of data presented to a SecurityManager
     that interprets data used to construct Subject instances.  It is essentially
@@ -233,7 +233,7 @@ class SubjectContext:
 
 
 @six.add_metaclass(ABCMeta)
-class Subject:
+class Subject(object):
     """
     A Subject represents state and security operations for a *single*
     application user.  These operations include authentication (login/logout),
@@ -374,7 +374,7 @@ class Subject:
         pass
 
     @abstractmethod
-    def is_permitted(self, permissions):
+    def is_permitted(self, permission_s):
         """
         Determines whether any Permission(s) associated with the subject
         implies the requested Permission(s) provided.
@@ -390,7 +390,7 @@ class Subject:
         pass
 
     @abstractmethod
-    def is_permitted_collective(self, permissions, logical_operator):
+    def is_permitted_collective(self, permission_s, logical_operator):
         """
         This method determines whether the requested Permission(s) are
         collectively granted authorization.  The Permission(s) associated with
@@ -413,7 +413,7 @@ class Subject:
         pass
 
     @abstractmethod
-    def check_permission(self, permissions, logical_operator):
+    def check_permission(self, permission_s, logical_operator):
         """
         This method determines whether the requested Permission(s) are
         collectively granted authorization.  The Permission(s) associated with
@@ -502,7 +502,7 @@ class Subject:
         pass
 
     @abstractmethod
-    def login(self, auth_token):
+    def login(self, authc_token):
         """
         Performs a login attempt for this Subject/user.
 
@@ -643,7 +643,7 @@ class Subject:
 
 # moved from /mgt:
 @six.add_metaclass(ABCMeta)
-class SubjectStore:
+class SubjectStore(object):
     """
     A SubjectStore is responsible for persisting a Subject instance's internal
     state such that the Subject instance can be recreated at a later time if
@@ -694,7 +694,7 @@ class SubjectStore:
 
 # moved from /mgt:
 @six.add_metaclass(ABCMeta)
-class SubjectFactory:
+class SubjectFactory(object):
     """
     A SubjectFactory is responsible for constructing Subject instances as
     needed

@@ -18,17 +18,11 @@ under the License.
 """
 
 from abc import ABCMeta, abstractmethod
-
-from yosai.core import (
-    authc_abcs,
-    authz_abcs,
-    session_abcs,
-)
 import six
 
 
 @six.add_metaclass(ABCMeta)
-class RememberMeManager:
+class RememberMeManager(object):
     """
     A RememberMeManager is responsible for remembering a Subject's identity
     across that Subject's sessions within the application.
@@ -75,10 +69,9 @@ class RememberMeManager:
         """
         Reacts to a successful authentication attempt, typically saving the
         identifier to be retrieved ('remembered') for future system access.
-
         :param subject: the subject that executed a successful authentication
                         attempt
-        :param token:   the authentication token submitted resulting in a
+        :param authc_token:   the authentication token submitted resulting in a
                         successful authentication attempt
         :param account: the account returned as a result of the
                         successful authentication attempt
@@ -112,7 +105,7 @@ class RememberMeManager:
 
 
 @six.add_metaclass(ABCMeta)
-class SecurityManager:
+class SecurityManager(object):
     """
     A SecurityManager executes ALL security operations for ALL Subjects (aka users)
     across a single application.
@@ -161,7 +154,7 @@ class SecurityManager:
 
         :param subject: the subject against which the authentication attempt
                         will occur
-        :param authenticationToken: the token representing the Subject's
+        :param authc_token: the token representing the Subject's
                                     identifier(s) and credential(s)
         :returns: the subject instance reflecting the authenticated state after
                   a successful attempt
@@ -204,7 +197,10 @@ class SecurityManager:
         Subject instances have local scope only and any other further use
         beyond the calling method must be managed explicitly.
 
-        :param context: any data needed to direct how the Subject should be
+        :param account_id:
+        :param authc_token:
+        :param existing_subject:
+        :param subject_context: any data needed to direct how the Subject should be
                         constructed
         :returns: the Subject instance that reflects the specified
                   initialization data

@@ -28,9 +28,9 @@ class SessionSettings:
     def __repr__(self):
         return ("SessionSettings(absolute_timeout={0}, idle_timeout={1}, "
                 "validation_scheduler_enable={2}, "
-                "validation_time_interval={3})".
-            format(
+                "validation_time_interval={3})".format(
             self.absolute_timeout,
             self.idle_timeout,
             self.validation_scheduler_enable,
-            self.validation_time_interval))
+            self.validation_time_interval
+        ))

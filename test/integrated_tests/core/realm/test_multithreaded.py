@@ -9,8 +9,8 @@ def test_multithreaded_authz_dogpile(cache_handler, session):
     results = []
 
     def create_func(arbitrary):
-        nonlocal canary
-        nonlocal lock
+        global canary
+        global lock
         ack = lock.acquire(False)
         canary.append(ack)
         time.sleep(.25)
