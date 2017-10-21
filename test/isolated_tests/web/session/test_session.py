@@ -1,11 +1,11 @@
 from unittest import mock
 import pytest
 
-from yosai.core import (
+from yosaipy2.core import (
     NativeSessionHandler,
 )
 
-from yosai.web import (
+from yosaipy2.web import (
     CSRFTokenException,
     WebSessionManager,
     WebDelegatingSession,

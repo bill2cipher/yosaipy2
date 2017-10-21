@@ -1,8 +1,8 @@
 import pytest
 from unittest import mock
-from yosai.core.subject.subject import global_subject_context, global_yosai_context
+from yosaipy2.core.subject.subject import global_subject_context, global_yosai_context
 
-from yosai.core import (
+from yosaipy2.core import (
     AuthorizationException,
     DelegatingSubject,
     NativeSecurityManager,

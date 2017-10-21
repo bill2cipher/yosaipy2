@@ -1,11 +1,11 @@
 import pytest
 from unittest import mock
 
-from yosai.core import (
+from yosaipy2.core import (
     SimpleIdentifierCollection,
 )
 
-from yosai.web import (
+from yosaipy2.web import (
     CookieRememberMeManager,
     WebSessionManager,
     WebSessionStorageEvaluator,

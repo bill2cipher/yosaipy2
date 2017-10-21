@@ -1,6 +1,6 @@
 import pytest
 
-from yosai.core import (
+from yosaipy2.core import (
     AccountStoreRealm,
     CachingSessionStore,
     DefaultPermission,
@@ -14,9 +14,9 @@ from yosai.core import (
     Yosai,
 )
 
-from yosai.core import event_bus as eventbus
+from yosaipy2.core import event_bus as eventbus
 
-from yosai.web import (
+from yosaipy2.web import (
     WebYosai,
 )
 

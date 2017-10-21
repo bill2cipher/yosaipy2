@@ -3,7 +3,7 @@ import collections
 import itertools
 from unittest import mock
 
-from yosai.core import (
+from yosaipy2.core import (
     DefaultPermission,
     ModularRealmAuthorizer,
     UnauthorizedException,

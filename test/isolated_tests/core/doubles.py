@@ -1,4 +1,4 @@
-from yosai.core import (
+from yosaipy2.core import (
     DelegatingSubject,
     account_abcs,
     authc_abcs,

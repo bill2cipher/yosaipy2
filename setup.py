@@ -34,11 +34,14 @@ install_requires = [
     'passlib',
     'cryptography',
     'msgpack-python',
-    'cbor2', 'six',
+    'cbor2',
+    'six',
+    'pyramid',
+    'wtforms',
 ]
 
 setup(
-    name='yosai',
+    name='yosaipy2',
     version='0.3.2',
     description="Yosai is a powerful security framework with an intuitive api.",
     long_description=README,

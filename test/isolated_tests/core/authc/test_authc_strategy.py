@@ -1,6 +1,6 @@
 import pytest
 
-from yosai.core import (
+from yosaipy2.core import (
     all_realms_successful_strategy,
     at_least_one_realm_successful_strategy,
     first_realm_successful_strategy,

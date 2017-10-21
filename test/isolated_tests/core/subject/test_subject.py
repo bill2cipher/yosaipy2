@@ -2,7 +2,7 @@ import pytest
 import collections
 from unittest import mock
 
-from yosai.core import (
+from yosaipy2.core import (
     AuthenticationException,
     SessionStorageEvaluator,
     SubjectStore,

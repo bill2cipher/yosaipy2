@@ -2,7 +2,7 @@ import pytest
 import time
 from collections import namedtuple
 
-from yosai.core import (
+from yosaipy2.core import (
     SessionKey,
     DelegatingSession,
     ExpiredSessionException,

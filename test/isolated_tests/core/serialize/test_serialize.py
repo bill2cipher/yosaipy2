@@ -1,10 +1,10 @@
 import pytest
 from unittest import mock
 
-from yosai.core import (
+from yosaipy2.core import (
     SerializationManager,
 )
-from yosai.core.serialize.serialize import msgpack_serializer
+from yosaipy2.core.serialize.serialize import msgpack_serializer
 
 
 @mock.patch.object(SerializationManager, 'register_serializables')

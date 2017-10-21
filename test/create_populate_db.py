@@ -20,7 +20,7 @@ from yosai_alchemystore.models.models import (
 import datetime
 from sqlalchemy import case, func, distinct
 from passlib.context import CryptContext
-from yosai.core import LazySettings
+from yosaipy2.core import LazySettings
 
 settings = LazySettings(env_var='YOSAI_SETTINGS')
 engine = init_engine(settings=settings)

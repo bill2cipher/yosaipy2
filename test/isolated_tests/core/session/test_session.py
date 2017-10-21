@@ -7,7 +7,7 @@ from .doubles import (
     MockSessionManager,
 )
 
-from yosai.core import (
+from yosaipy2.core import (
     SessionSettings,
     SessionKey,
     ExpiredSessionException,

@@ -1,7 +1,7 @@
 import pytest
 import rapidjson
 
-from yosai.core import (
+from yosaipy2.core import (
     AccountStoreRealm,
     ConsumedTOTPToken,
     DefaultPermission,

@@ -1,6 +1,6 @@
 from passlib.totp import TOTP
 
-from yosai.core import (
+from yosaipy2.core import (
     load_logconfig,
     SimpleIdentifierCollection,
     TOTPToken,

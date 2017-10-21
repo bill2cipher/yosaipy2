@@ -1,7 +1,7 @@
-from yosai.core import (
+from yosaipy2.core import (
     AdditionalAuthenticationRequired,
 )
-from yosai.web import (
+from yosaipy2.web import (
     WebYosai,
 )
 from yosai_alchemystore import AlchemyAccountStore

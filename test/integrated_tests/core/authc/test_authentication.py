@@ -1,5 +1,5 @@
 import pytest
-from yosai.core import (
+from yosaipy2.core import (
     EVENT_TOPIC,
     AdditionalAuthenticationRequired,
     AuthenticationException,

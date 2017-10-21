@@ -1,5 +1,5 @@
 import datetime
-from yosai.core import (
+from yosaipy2.core import (
     NativeSessionManager,
     AbstractSessionStore,
     session_abcs,

@@ -1,14 +1,14 @@
 
 import pytest
 
-from yosai.core import (
+from yosaipy2.core import (
     EVENT_TOPIC,
     AdditionalAuthenticationRequired,
     AuthenticationException,
     ExpiredSessionException,
 )
 
-from yosai.web import WebYosai
+from yosaipy2.web import WebYosai
 
 
 def test_subject_invalid_login(web_yosai, invalid_walter_username_password_token,

@@ -1,14 +1,14 @@
 import pytest
 from unittest import mock
-from yosai.core.subject.subject import global_subject_context, global_yosai_context
-from yosai.web.subject.subject import global_webregistry_context
+from yosaipy2.core.subject.subject import global_subject_context, global_yosai_context
+from yosaipy2.web.subject.subject import global_webregistry_context
 
-from yosai.core import (
+from yosaipy2.core import (
     AuthorizationException,
     SubjectContext,
 )
 
-from yosai.web import (
+from yosaipy2.web import (
     WebYosai,
     WebDelegatingSubject,
 )

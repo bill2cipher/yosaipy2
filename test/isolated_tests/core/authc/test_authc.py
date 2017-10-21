@@ -3,7 +3,7 @@ from passlib.totp import MalformedTokenError
 from unittest import mock
 import collections
 
-from yosai.core import (
+from yosaipy2.core import (
     AccountException,
     AccountStoreRealm,
     AdditionalAuthenticationRequired,
