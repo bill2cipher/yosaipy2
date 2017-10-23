@@ -12,6 +12,9 @@ class FlaskWebRegistry(WebRegistry):
         # type: (Callable[[Any], Dict]) -> None
         super(FlaskWebRegistry, self).__init__(request)
 
+    def remote_host(self):
+        return request.remote_addr
+
     def resource_params(self):
         # type: () -> Dict
         """
@@ -58,7 +61,6 @@ class FlaskWebRegistry(WebRegistry):
         g.registry = self
 
     def __html__(self):
-
         data = {
             "secret": self.secret,
             "cookies": {
@@ -79,4 +81,3 @@ class FlaskWebRegistry(WebRegistry):
         }
         self._session_creation_enabled = data['session_creation_enabled']
         self.set_cookie_attributes = data['set_cookie_attributes']
-        print(data)
