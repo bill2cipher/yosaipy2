@@ -36,7 +36,7 @@ install_requires = [
     'cbor2',
     'six',
     'pyramid',
-    'wtforms', 'blinker', 'flask',
+    'wtforms', 'blinker', 'flask', 'sqlalchemy',
 ]
 
 setup(

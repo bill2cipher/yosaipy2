@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from yosaipy2.web.registry.abcs import WebRegistry
-from flask import request
+from flask import request, current_app
 from typing import Callable, Dict, Any
 from werkzeug.exceptions import Forbidden, Unauthorized
 
@@ -52,4 +52,4 @@ class FlaskWebRegistry(WebRegistry):
         response.set_cookie('cookie_name', '', expires=0)
 
     def register_response_callback(self):
-        pass
+        g.registry = self

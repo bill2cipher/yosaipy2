@@ -1,6 +1,6 @@
 import traceback
 import itertools
-import json as rapidjson  # stdlib json works with pypy -- if not using pypy, using rapidjson
+import json as rapidjson
 
 import logging
 import pytz

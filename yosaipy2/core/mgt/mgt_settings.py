@@ -22,7 +22,7 @@ class SecurityManagerSettings(object):
         manager_config = settings.SECURITY_MANAGER_CONFIG
         self.security_manager = \
             maybe_resolve(manager_config.get('security_manager',
-                                             'yosai.core.NativeSecurityManager'))
+                                             'yosaipy2.core.NativeSecurityManager'))
         self.attributes = self.resolve_attributes(manager_config.get('attributes'))
 
     def resolve_attributes(self, attributes):
