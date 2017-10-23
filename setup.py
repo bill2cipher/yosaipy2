@@ -1,7 +1,7 @@
 import os
 
 from setuptools import setup, find_packages, Command
-
+from pip.req import parse_requirements
 
 class CleanCommand(Command):
     """Custom clean command to tidy up the project root."""
@@ -25,19 +25,9 @@ try:
 except IOError:
     VERSION = README = ''
 
-install_requires = [
-    'PyYAML',
-    'pytz',
-    'argon2_cffi',
-    'bcrypt',
-    'passlib',
-    'cryptography',
-    'msgpack-python',
-    'cbor2',
-    'six',
-    'pyramid',
-    'wtforms', 'blinker', 'flask', 'sqlalchemy',
-]
+
+install_reqs = parse_requirements("requirements.txt", session='hack')
+install_requires = [str(ir.req) for ir in install_reqs]
 
 setup(
     name='yosaipy2',

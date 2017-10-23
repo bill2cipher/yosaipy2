@@ -1,4 +1,3 @@
-from yosai_dpcache.cache.region import register_backend
+from yosaipy2.cache.cache.region import register_backend
 
-register_backend(
-    "yosai_dpcache.redis", "yosai_dpcache.cache.backends.redis", "RedisBackend")
+register_backend("yosaipy2.cache.redis", "yosaipy2.cache.cache.backends.redis", "RedisBackend")

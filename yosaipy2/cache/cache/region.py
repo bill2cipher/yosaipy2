@@ -48,8 +48,10 @@ import datetime
 from numbers import Number
 import threading
 
-_backend_loader = PluginLoader("yosai_dpcache.cache")
+
+_backend_loader = PluginLoader("yosaipy2.cache.cache")
 register_backend = _backend_loader.register
+from . import backends  #noqa
 
 
 class CacheRegion(object):

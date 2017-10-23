@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from yosaipy2.web.registry.abcs import WebRegistry
-from flask import request, current_app
+from flask import request, g
 from typing import Callable, Dict, Any
 from werkzeug.exceptions import Forbidden, Unauthorized
+import json
 
 
 class FlaskWebRegistry(WebRegistry):
-    def __init__(self, parser):
+    def __init__(self):
         # type: (Callable[[Any], Dict]) -> None
         super(FlaskWebRegistry, self).__init__(request)
-        self._parser = parser
 
     def resource_params(self):
         # type: () -> Dict
@@ -18,7 +18,10 @@ class FlaskWebRegistry(WebRegistry):
         Obtains the resource-specific parameters of the HTTP request, returning
         a dict that will be used to bind parameter values to dynamic permissions.
         """
-        return self._parser(request)
+        if request.mimetype == 'application/json':
+            return request.json()
+        else:
+            return request.values
 
     def raise_forbidden(self, msg=None):
         """
@@ -53,3 +56,27 @@ class FlaskWebRegistry(WebRegistry):
 
     def register_response_callback(self):
         g.registry = self
+
+    def __html__(self):
+
+        data = {
+            "secret": self.secret,
+            "cookies": {
+                'set_cookie': self.cookies['set_cookie'],
+                'delete_cookie': list(self.cookies['delete_cookie']),
+            },
+            "session_creation_enabled": self._session_creation_enabled,
+            "set_cookie_attributes": self.set_cookie_attributes,
+        }
+        return json.dumps(data)
+
+    def decode(self, data):
+        # type:(Dict) -> None
+        self.secret = data['secret']
+        self.cookies = {
+            'set_cookie': data['cookies']['set_cookie'],
+            'delete_cookie': set(data['cookies']['delete_cookie'])
+        }
+        self._session_creation_enabled = data['session_creation_enabled']
+        self.set_cookie_attributes = data['set_cookie_attributes']
+        print(data)

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from blinker import signal, Namespace
+from blinker import signal, Namespace, NamedSignal
 from yosaipy2.core.event.abcs import EventBus
-from typing import List
+from typing import Dict
 from functools import wraps
 
 
@@ -10,7 +10,7 @@ class BlinkerEventBus(EventBus):
     def __init__(self):
         # type: (str) -> None
         self.AUTO_TOPIC = "blinker_eventbus_auto_topic"
-        self._signals = []  # type: List[Namespace]
+        self._signals = {}  # type: Dict[NamedSignal]
 
     def send_message(self, topic_name, **kwargs):
         if topic_name not in self._signals:
@@ -39,6 +39,11 @@ class BlinkerEventBus(EventBus):
             func(topic=topic_name, **kwargs)
 
         return callback
+
+    def isSubscribed(self, listener, topic_name):
+        if topic_name not in self._signals:
+            return False
+        return True
 
 
 event_bus = BlinkerEventBus()

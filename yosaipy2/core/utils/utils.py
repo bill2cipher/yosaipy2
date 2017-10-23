@@ -212,10 +212,10 @@ def qualified_name(obj):
     """Return the qualified name (e.g. package.module.Type) for the given object."""
     try:
         module = obj.__module__
-        qualname = obj.__qualname__
+        qualname = obj.__qualname__ if six.PY3 else obj.__name__
     except AttributeError:
         type_ = type(obj)
         module = type_.__module__
-        qualname = type_.__qualname__
+        qualname = type_.__qualname__ if six.PY3 else type_.__name__
 
     return qualname if module in ('typing', 'builtins') else '{}.{}'.format(module, qualname)
