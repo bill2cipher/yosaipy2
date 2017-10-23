@@ -36,7 +36,7 @@ install_requires = [
     'cbor2',
     'six',
     'pyramid',
-    'wtforms', 'blinker',
+    'wtforms', 'blinker', 'flask',
 ]
 
 setup(
