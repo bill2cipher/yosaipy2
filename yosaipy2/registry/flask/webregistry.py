@@ -21,10 +21,11 @@ class FlaskWebRegistry(WebRegistry):
         Obtains the resource-specific parameters of the HTTP request, returning
         a dict that will be used to bind parameter values to dynamic permissions.
         """
-        if request.mimetype == 'application/json':
-            return request.json()
-        else:
-            return request.values
+        resource = dict()
+        resource.update(request.values)
+        if request.json is not None:
+            resource.update(request.json)
+        return resource
 
     def raise_forbidden(self, msg=None):
         """
