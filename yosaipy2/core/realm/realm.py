@@ -61,7 +61,7 @@ class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
         self.permission_verifier = permission_verifier
 
         self.cache_handler = None
-        self.token_resolver = self.init_token_resolution()
+        self.token_resolver = self.init_token_resolver()
 
     @property
     def supported_authc_tokens(self):
@@ -74,7 +74,7 @@ class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
     def supports(self, token):
         return token.__class__ in self.token_resolver
 
-    def init_token_resolution(self):
+    def init_token_resolver(self):
         token_resolver = {}
         for verifier in self.authc_verifiers:
             for token_cls in verifier.supported_tokens:

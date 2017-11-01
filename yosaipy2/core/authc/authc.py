@@ -180,8 +180,6 @@ class DefaultAuthenticator(authc_abcs.Authenticator):
 
     def authenticate_account(self, identifiers, authc_token, second_factor_token=None):
         """
-        :type identifiers:
-
         :returns: account_id (identifiers) if the account authenticates
         :rtype: SimpleIdentifierCollection
         """
@@ -231,8 +229,7 @@ class DefaultAuthenticator(authc_abcs.Authenticator):
             # this won't be called if the Account is locked:
             raise IncorrectCredentialsException
 
-        self.notify_event(account['account_id'].primary_identifier,
-                          'AUTHENTICATION.SUCCEEDED')
+        self.notify_event(account['account_id'].primary_identifier, 'AUTHENTICATION.SUCCEEDED')
 
         return account['account_id']
 
