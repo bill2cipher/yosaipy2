@@ -19,7 +19,6 @@ under the License.
 
 from abc import ABCMeta, abstractmethod
 import six
-from yosaipy2.core import authc_abcs
 
 
 @six.add_metaclass(ABCMeta)
@@ -102,6 +101,7 @@ class AuthenticatingRealm(Realm):
     @abstractmethod
     def authenticate_account(self, authc_token):
         pass
+
 
 class TOTPAuthenticatingRealm(AuthenticatingRealm):
     @abstractmethod

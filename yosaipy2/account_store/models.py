@@ -4,16 +4,8 @@
 
 class BaseModelImpl(object):
     def __init__(self, pk_id, name):
-        self._pk_id = pk_id
-        self._name = name
-
-    @property
-    def pk_id(self):
-        return self._pk_id
-
-    @property
-    def name(self):
-        return self._name
+        self.pk_id = pk_id
+        self.name = name
 
     @classmethod
     def table(cls):
@@ -51,6 +43,10 @@ class Role(BaseModelImpl):
         :return:
         """
         return self._permissions
+
+    @permissions.setter
+    def permissions(self, v):
+        self._permissions = v
 
 
 class User(BaseModelImpl):
@@ -125,35 +121,35 @@ class Permission(BaseModelImpl):
         self._profile = kwargs
 
     @property
-    def domain_id(self):
+    def domain(self):
         """
-        domain id of the permission
+        domain of the permission
         :return:
         """
-        if 'domain_id' in self._profile:
-            return self._profile['domain_id']
+        if 'domain' in self._profile:
+            return self._profile['domain']
         else:
             return ''
 
     @property
-    def action_id(self):
+    def actions(self):
         """
-        action id of the permission
+        actions associated with this permission
         :return:
         """
-        if 'action_id' in self._profile:
-            return self._profile['action_id']
+        if 'actions' in self._profile:
+            return self._profile['actions']
         else:
             return ''
 
     @property
-    def resource_id(self):
+    def resources(self):
         """
-        resource id of the permission
+        resources associated with this permission
         :return:
         """
-        if 'resource_id' in self._profile:
-            return self._profile['resource_id']
+        if 'resources' in self._profile:
+            return self._profile['resources']
         else:
             return ''
 
