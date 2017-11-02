@@ -72,7 +72,7 @@ class Realm(object):
         pass
 
 
-class AuthenticatingRealm(Realm, authc_abcs.Authenticator):
+class AuthenticatingRealm(Realm):
     """
     required attributes:
         authc_verifiers
@@ -92,10 +92,6 @@ class AuthenticatingRealm(Realm, authc_abcs.Authenticator):
         pass
 
     @abstractmethod
-    def authenticate_account(self, authc_token):
-        pass
-
-    @abstractmethod
     def assert_credentials_match(self, authc_token, account):
         pass
 
@@ -103,6 +99,9 @@ class AuthenticatingRealm(Realm, authc_abcs.Authenticator):
     def clear_cached_authc_info(self, identifiers):
         pass
 
+    @abstractmethod
+    def authenticate_account(self, authc_token):
+        pass
 
 class TOTPAuthenticatingRealm(AuthenticatingRealm):
     @abstractmethod

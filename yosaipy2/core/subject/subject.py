@@ -1043,7 +1043,6 @@ class Yosai(object):
         return self._security_manager == other._security_manager
 
 
-# new to yosai
 class SecurityManagerCreator(object):
     def _init_realms(self, settings, realms):
         try:

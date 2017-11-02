@@ -63,6 +63,11 @@ class AuthenticationToken(object):
         """
         pass
 
+    @credentials.setter
+    @abstractmethod
+    def credentials(self, credentials):
+        pass
+
 
 @six.add_metaclass(ABCMeta)
 class Authenticator(object):
@@ -81,7 +86,7 @@ class Authenticator(object):
     """
 
     @abstractmethod
-    def authenticate_account(self, authc_token):
+    def authenticate_account(self, identifiers, authc_token, second_factor_token):
         """
         Authenticates an account based on the submitted ``AuthenticationToken``.
 
@@ -93,6 +98,8 @@ class Authenticator(object):
 
         :param authc_token: any representation of an account's identifiers and
                             credentials submitted during an authentication attempt
+        :param identifiers:
+        :param second_factor_token:
 
         :returns the authenticated account
         :raises AuthenticationException: if there is any problem during the authentication process
@@ -103,6 +110,10 @@ class Authenticator(object):
             implementation of this interface may or may not throw those listed or may
             throw other AuthenticationExceptions, but the list shows the most common ones.
         """
+        pass
+
+    @abstractmethod
+    def init_realms(self, realm):
         pass
 
 
