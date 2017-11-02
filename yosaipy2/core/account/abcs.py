@@ -19,49 +19,62 @@ under the License.
 
 from abc import ABCMeta, abstractmethod
 import six
+from typing import Dict
 
 
 @six.add_metaclass(ABCMeta)
-class AccountStore(object):
-    pass
-
-
-# @abstractmethod
-#    def get_account(self, request):
-#        """
-#        Obtains the most complete Account object available from the AccountStore,
-#        consisting of both authentication AND authorization related information
-#        when they are available.
-#
-#        :param request:  the request object defining the criteria by which
-#                         to query the account store
-#        :type request:  AuthenticationToken or Account
-#
-#        :returns: Account
-#        """
-#        pass
-
-
-class LockingAccountStore(AccountStore):
+class LockingAccountStore(object):
     @abstractmethod
-    def lock_account(self, account):
+    def lock_account(self, identifier, locked_time):
+        # type:(str, int) -> None
+        """
+        lock this user's account with the specified time
+        :param identifier: identifier of a user
+        :param locked_time: locked time of the user
+        :return:
+        """
         pass
 
-
-class CredentialsAccountStore(AccountStore):
     @abstractmethod
-    def get_authc_info(self, authc_token):
+    def unlock_account(self, identifier):
+        # type: (str) -> None
         """
-        :returns: Account
+        unlock the specified user
+        :param identifier: identifier of a user
+        :return:
         """
         pass
 
 
-class AuthorizationAccountStore(AccountStore):
+@six.add_metaclass(ABCMeta)
+class CredentialsAccountStore(object):
     @abstractmethod
-    def get_authz_permissions(self, identifiers):
+    def get_authc_info(self, identifier):
+        # type: (str) -> Dict
+        """
+        return authenticate information of the specified user
+        :param identifier:
+        :return:
+        """
+        pass
+
+
+@six.add_metaclass(ABCMeta)
+class AuthorizationAccountStore(object):
+    @abstractmethod
+    def get_authz_permissions(self, identifier):
+        """
+        get all the permissions associated with the specified user
+        :param identifier:
+        :return:
+        """
         pass
 
     @abstractmethod
-    def get_authz_roles(self, identifiers):
+    def get_authz_roles(self, identifier):
+        """
+        get all the roles associated with the specified user
+        :param identifier:
+        :return:
+        """
         pass

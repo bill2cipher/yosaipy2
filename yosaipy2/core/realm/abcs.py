@@ -72,7 +72,6 @@ class Realm(object):
         pass
 
 
-# new to yosai.core:
 class AuthenticatingRealm(Realm, authc_abcs.Authenticator):
     """
     required attributes:
@@ -111,7 +110,6 @@ class TOTPAuthenticatingRealm(AuthenticatingRealm):
         pass
 
 
-# new to yosai.core:
 class AuthorizingRealm(Realm):
     """
     required attributes:

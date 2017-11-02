@@ -24,6 +24,7 @@ import datetime
 import time
 import threading
 import six
+import logging
 
 
 class ThreadStateManager(threading.local):
@@ -219,3 +220,7 @@ def qualified_name(obj):
         qualname = type_.__qualname__ if six.PY3 else type_.__name__
 
     return qualname if module in ('typing', 'builtins') else '{}.{}'.format(module, qualname)
+
+
+def get_logger():
+    return logging.getLogger('yosaipy2')
