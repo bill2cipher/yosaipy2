@@ -96,20 +96,17 @@ class AccountStore(account_abcs.CredentialsAccountStore,
         pids = []
         [pids.extend(r['permission_ids']) for r in roles]
         table = self._db[models.Permission.table()]
-        result = {}
+        result = dict()
         for p in table.find({'_id': {'$in': pids}}):
             domain = p['domain']
             if domain not in result:
-                result[domain] = {
-                    "domain": p['domain'],
-                    "parts": []
-                }
+                result[domain] = []
             detail = {
                 'domain': p['domain'],
                 'action': p['actions'] if 'actions' in p else '*',
-                'resources': p['resources'] if 'resources' in p else '*'
+                'targets': p['targets'] if 'targets' in p else '*'
             }
-            result[domain]['parts'].append(detail)
+            result[domain].append(detail)
         return result
 
     def _query_user(self, identifier):

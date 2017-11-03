@@ -144,8 +144,7 @@ class DefaultPermissionVerifier(object):
 
     def is_permitted_from_json(self, required, assigned):
         required = Permission(wildcard_perm=required)
-        the_parts = json.loads(assigned.decode('utf-8'))
-        for parts in the_parts:
+        for parts in assigned:
             assigned_perm = Permission(parts=parts)
             if assigned_perm.implies(required):
                 return True
