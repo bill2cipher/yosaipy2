@@ -18,44 +18,23 @@ under the License.
 """
 
 from yosaipy2.core import cache_abcs
-
-from yosaipy2.cache.cache import (
-    make_region,
-    CacheSettings,
-    SerializationProxy,
-)
+from dogpile.cache import make_region
+from functools import partial
+from dogpile.cache.api import NO_VALUE
 
 
 class DPCacheHandler(cache_abcs.CacheHandler):
-    def __init__(self, settings=None, ttl=None, region_name=None, backend=None,
-                 region_arguments=None, serialization_manager=None):
+    def __init__(self, settings=None, serialization_manager=None):
         """
         You may either explicitly configure the CacheHandler or default to
         settings defined in a yaml file.
         """
-        if not all([ttl, region_name, region_arguments]):
-            cache_settings = CacheSettings(settings)
-            self.absolute_ttl = cache_settings.absolute_ttl
-            self.credentials_ttl = cache_settings.credentials_ttl
-            self.authz_info_ttl = cache_settings.authz_info_ttl
-            self.session_ttl = cache_settings.session_abs_ttl
-            self.region_name = cache_settings.region_name
-            self.backend = cache_settings.backend
-            self.region_arguments = cache_settings.region_arguments
-        else:
-            self.absolute_ttl = ttl.get('absolute_ttl', 60)
-            self.credentials_ttl = ttl.get('credentials_ttl', 10)
-            self.authz_info_ttl = ttl.get('authz_info_ttl', 60)
-            self.session_ttl = ttl.get('session_abs_ttl', 60)
-            self.region_name = region_name
-            self.backend = backend
-            self.region_arguments = region_arguments
-
+        self.region_name = "dogpile"
         if serialization_manager:
             self.serialization_manager = serialization_manager
         else:
             self._serialization_manager = None
-            self.cache_region = None  # initializes when serialization_manager is set
+            self.cache_region = None
 
     @property
     def serialization_manager(self):
@@ -67,24 +46,19 @@ class DPCacheHandler(cache_abcs.CacheHandler):
         self.cache_region = self.create_cache_region(name=self.region_name)
 
     def create_cache_region(self, name):
-        sm = self.serialization_manager
-
         try:
-            cache_region = make_region(name=name)
-            cache_region.configure(backend=self.backend,
-                                   expiration_time=self.absolute_ttl,
-                                   arguments=self.region_arguments,
-                                   wrap=[(SerializationProxy,
-                                          sm.serialize, sm.deserialize)])
+            cache_region = make_region(name=name).configure(
+                'dogpile.cache.memory',
+                expiration_time=3600,
+            )
         except AttributeError:
             one = 'serialization_manager not set' if not self.serialization_manager else ''
             msg = 'Failed to Initialize a CacheRegion. {one}'.format(one=one)
             raise AttributeError(msg)
-
         return cache_region
 
     def get_ttl(self, key):
-        return getattr(self, key + '_ttl', self.absolute_ttl)
+        return 60
 
     def generate_key(self, identifier, domain):
         # simple for now yet TBD:
@@ -94,7 +68,8 @@ class DPCacheHandler(cache_abcs.CacheHandler):
         if identifier is None:
             return
         full_key = self.generate_key(identifier, domain)
-        return self.cache_region.get(full_key)
+        result = self.cache_region.get(full_key)
+        return None if result is NO_VALUE else result
 
     def get_or_create(self, domain, identifier, creator_func, creator):
         """
@@ -116,10 +91,11 @@ class DPCacheHandler(cache_abcs.CacheHandler):
             return
         full_key = self.generate_key(identifier, domain)
         ttl = self.get_ttl(domain)
-        return self.cache_region.get_or_create(key=full_key,
-                                               creator_func=creator_func,
-                                               creator=creator,
-                                               expiration=ttl)
+        creator = partial(creator_func, creator)
+        result = self.cache_region.get_or_create(key=full_key,
+                                                 creator=creator,
+                                                 expiration_time=ttl)
+        return None if result is NO_VALUE else result
 
     def hmget_or_create(self, domain, identifier, keys, creator_func, creator):
         """
@@ -147,11 +123,12 @@ class DPCacheHandler(cache_abcs.CacheHandler):
             return
         full_key = self.generate_key(identifier, domain)
         ttl = self.get_ttl(domain)
-        return self.cache_region.hmget_or_create(key=full_key,
-                                                 keys=keys,
-                                                 creator_func=creator_func,
-                                                 creator=creator,
-                                                 expiration=ttl)
+        creator = partial(creator_func, creator)
+        result = self.cache_region.hmget_or_create(key=full_key,
+                                                   keys=keys,
+                                                   creator=creator,
+                                                   expiration_time=ttl)
+        return None if result is NO_VALUE else result
 
     def set(self, domain, identifier, value):
         """
@@ -162,8 +139,7 @@ class DPCacheHandler(cache_abcs.CacheHandler):
         if value is None:
             return
         full_key = self.generate_key(identifier, domain)
-        ttl = self.get_ttl(domain)
-        self.cache_region.set(full_key, value, expiration=ttl)
+        self.cache_region.set(full_key, value)
 
     def delete(self, domain, identifier):
         """

@@ -4,7 +4,8 @@ from yosaipy2.core import account_abcs
 from pymongo import MongoClient
 from yosaipy2.core.utils.utils import get_logger
 from yosaipy2.account_store import models
-from typing import List, Dict
+from typing import List, Dict, Optional
+from yosaipy2.core.conf.yosaisettings import LazySettings
 
 
 class AccountStore(account_abcs.CredentialsAccountStore,
@@ -12,22 +13,23 @@ class AccountStore(account_abcs.CredentialsAccountStore,
                    account_abcs.LockingAccountStore):
     """
         AccountStore provides the realm-facing API to the relational database
-
         step 1:  generate an orm query
         step 2:  execute the query
         step 3:  return results
         """
 
-    def __init__(self, uri, dbname='yosai', retry_limit=3):
-        # type: (str, str) -> None
+    def __init__(self, settings):
+        # type: (LazySettings) -> None
         """
-        :param uri: mongodb connection uri
+        :param settings: lazy settings from yosai
         """
-        self._uri = uri
-        self._dbname = dbname
-        self._client = MongoClient(uri)
-        self._db = self._client[dbname]
-        self._retry_limit = retry_limit
+        settings = settings.ACCOUNT_STORE
+        self._settings = settings
+        self._uri = settings['uri']
+        self._dbname = settings['dbname']
+        self._retry_limit = settings['retry_limit']
+        self._client = MongoClient(self._uri)
+        self._db = self._client[self._dbname]
         self._logger = get_logger()
 
     def get_authc_info(self, identifier):
@@ -66,7 +68,8 @@ class AccountStore(account_abcs.CredentialsAccountStore,
         return self._retry_executor(self._query_user, {}, identifier)
 
     def get_authz_roles(self, identifier):
-        return self._query_roles(identifier)
+        roles = self._query_roles(identifier)
+        return [r['name'] for r in roles]
 
     def lock_account(self, identifier, locked_time):
         table = self._db[models.User.table()]
@@ -88,7 +91,7 @@ class AccountStore(account_abcs.CredentialsAccountStore,
         # type:(str) -> Dict
         roles = self._query_roles(identifier)
         pids = []
-        [pids.extend(r['permissions']) for r in roles]
+        [pids.extend(r['permission_ids']) for r in roles]
         table = self._db[models.Permission.table()]
         result = {}
         for p in table.find({'_id': {'$in': pids}}):
@@ -105,17 +108,18 @@ class AccountStore(account_abcs.CredentialsAccountStore,
         return result
 
     def _query_user(self, identifier):
-
-        # type: (str) -> models.User
+        # type: (str) -> Optional[models.User]
         table = self._db[models.User.table()]
         user = table.find_one({'_id': identifier})
-        return models.User(user['_id'], user['name'], **user)
+        if user is None:
+            return None
+        return models.User(user['_id'], **user)
 
     def _query_credential(self, identifier):
         # type: (str) -> List[models.Credential]
         table = self._db[models.Credential.table()]
-        creds = list(table.find({'identifier': identifier}))
-        return [models.Credential(c['_id'], c['name'], **c) for c in creds]
+        creds = list(table.find({'user_id': identifier}))
+        return [models.Credential(c['_id'], **c) for c in creds]
 
     def _retry_executor(self, f, default, *args, **kwargs):
         counter = 0
@@ -126,8 +130,8 @@ class AccountStore(account_abcs.CredentialsAccountStore,
                 counter += 1
                 self._logger.error("execute mongo query failed", extra={
                     "reason": exp,
-                    "args": args,
-                    "kwargs": kwargs,
+                    "func_args": args,
+                    "func_kwargs": kwargs,
                     "counter": counter,
                     "limit": self._retry_limit
                 })

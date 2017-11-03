@@ -32,21 +32,13 @@ class CredentialType(BaseModelImpl):
 
 
 class Role(BaseModelImpl):
-    def __init__(self, pk_id, name, permissions):
+    def __init__(self, pk_id, name, permission_ids):
         super(Role, self).__init__(pk_id, name)
-        self._permissions = permissions
+        self._permission_ids = permission_ids
 
     @property
-    def permissions(self):
-        """
-        permissions associated with this role
-        :return:
-        """
-        return self._permissions
-
-    @permissions.setter
-    def permissions(self, v):
-        self._permissions = v
+    def permission_ids(self):
+        return self._permission_ids
 
 
 class User(BaseModelImpl):
@@ -85,34 +77,15 @@ class User(BaseModelImpl):
             return ''
 
     @property
-    def roles(self):
+    def role_ids(self):
         """
         roles associated with this user
         :return:
         """
-        if 'roles' in self._profile:
-            return self._profile['roles']
+        if 'role_ids' in self._profile:
+            return self._profile['role_ids']
         else:
             return []
-
-    @roles.setter
-    def roles(self, v):
-        self._profile['roles'] = v
-
-    @property
-    def permissions(self):
-        """
-        permissions associated with this user
-        :return:
-        """
-        if 'permissions' in self._profile:
-            return self._profile['permissions']
-        else:
-            return []
-
-    @permissions.setter
-    def permissions(self, v):
-        self._profile['permissions'] = v
 
 
 class Permission(BaseModelImpl):

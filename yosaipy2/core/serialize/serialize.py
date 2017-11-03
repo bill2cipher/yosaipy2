@@ -65,13 +65,8 @@ class SerializationManager(object):
         :returns: an encoded, serialized object
         """
         # this isn't doing much at the moment but is where validation will happen
-        return self.serializer.serialize(obj)
+        return obj
 
     def deserialize(self, message):
         # this isn't doing much at the moment but is where validation will happen
-        try:
-            return self.serializer.deserialize(message)
-        except Exception as exc:
-            if message is None:
-                return None
-            raise exc
+        return message

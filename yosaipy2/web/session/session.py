@@ -151,6 +151,22 @@ class WebSessionHandler(NativeSessionHandler):
 
         del web_registry.session_id
 
+    def _retrieve_session(self, session_key):
+        """
+        :type session_key: SessionKey
+        :returns: SimpleSession
+        """
+        session_id = session_key.session_id
+        if session_id is None:
+            msg = ("Unable to resolve session ID from SessionKey [{0}]."
+                   "Returning null to indicate a session could not be "
+                   "found.".format(session_key))
+            logger.debug(msg)
+            return None
+
+        return self.session_store.read(session_id)
+
+
 
 class WebSessionManager(NativeSessionManager):
     """

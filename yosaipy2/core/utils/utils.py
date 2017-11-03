@@ -25,6 +25,7 @@ import time
 import threading
 import six
 import logging
+from pythonjsonlogger import jsonlogger
 
 
 class ThreadStateManager(threading.local):
@@ -220,6 +221,13 @@ def qualified_name(obj):
         qualname = type_.__qualname__ if six.PY3 else type_.__name__
 
     return qualname if module in ('typing', 'builtins') else '{}.{}'.format(module, qualname)
+
+
+def init_logger():
+    logger = logging.getLogger('yosaipy2')
+    formatter = jsonlogger.JsonFormatter()
+    for h in logger.handlers:
+        h.setFormatter(formatter)
 
 
 def get_logger():
