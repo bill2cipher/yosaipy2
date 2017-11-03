@@ -57,7 +57,8 @@ class DPCacheHandler(cache_abcs.CacheHandler):
             raise AttributeError(msg)
         return cache_region
 
-    def get_ttl(self, key):
+    @staticmethod
+    def get_ttl(key):
         return 60
 
     def generate_key(self, identifier, domain):
@@ -124,11 +125,11 @@ class DPCacheHandler(cache_abcs.CacheHandler):
         full_key = self.generate_key(identifier, domain)
         ttl = self.get_ttl(domain)
         creator = partial(creator_func, creator)
-        result = self.cache_region.hmget_or_create(key=full_key,
-                                                   keys=keys,
-                                                   creator=creator,
-                                                   expiration_time=ttl)
-        return None if result is NO_VALUE else result
+        creator = partial(self._hm_creator_wrapper, creator, keys)
+        result = self.cache_region.get_or_create(key=full_key,
+                                                 creator=creator,
+                                                 expiration_time=ttl)
+        return None if result is NO_VALUE else self._hm_get(keys, result)
 
     def set(self, domain, identifier, value):
         """
@@ -159,3 +160,20 @@ class DPCacheHandler(cache_abcs.CacheHandler):
         :returns: list of bytestrings
         """
         return self.cache_region.keys(pattern)
+
+    @staticmethod
+    def _hm_creator_wrapper(f, keys, *args):
+        result = f(*args)
+        store = {}
+        for k in keys:
+            if k in result:
+                store[k] = result[k]
+        return store
+
+    @staticmethod
+    def _hm_get(keys, data):
+        result = {}
+        for k in keys:
+            if k in data:
+                result[k] = data[k]
+        return result

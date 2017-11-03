@@ -40,7 +40,7 @@ class AccountStore(account_abcs.CredentialsAccountStore,
 
         :returns: a dict of account attributes
         """
-        user = self._retry_executor(self._query_user, [], identifier)
+        user = self._retry_executor(self._query_user, None, identifier)
         if user is None:
             self._logger.error("user not found for specified id", extra={
                 "identifier": identifier,
@@ -65,10 +65,10 @@ class AccountStore(account_abcs.CredentialsAccountStore,
         }
 
     def get_authz_permissions(self, identifier):
-        return self._retry_executor(self._query_user, {}, identifier)
+        return self._retry_executor(self._query_permissions, {}, identifier)
 
     def get_authz_roles(self, identifier):
-        roles = self._query_roles(identifier)
+        roles = self._retry_executor(self._query_roles, [], identifier)
         return [r['name'] for r in roles]
 
     def lock_account(self, identifier, locked_time):
@@ -84,8 +84,11 @@ class AccountStore(account_abcs.CredentialsAccountStore,
         return self.lock_account(identifier, 0)
 
     def _query_roles(self, identifier):
+        user = self._query_user(identifier)
+        if user is None:
+            return []
         table = self._db[models.Role.table()]
-        return list(table.find({'identifier': identifier}))
+        return list(table.find({'_id': {'$in': user.role_ids}}))
 
     def _query_permissions(self, identifier):
         # type:(str) -> Dict
@@ -95,16 +98,18 @@ class AccountStore(account_abcs.CredentialsAccountStore,
         table = self._db[models.Permission.table()]
         result = {}
         for p in table.find({'_id': {'$in': pids}}):
-            if p['domain'] not in result:
-                result['domain'] = {
+            domain = p['domain']
+            if domain not in result:
+                result[domain] = {
                     "domain": p['domain'],
                     "parts": []
                 }
-            result['domain']['parts'].append({
+            detail = {
                 'domain': p['domain'],
-                'action': p['actions'],
-                'target': p['targets'],
-            })
+                'action': p['actions'] if 'actions' in p else '*',
+                'resources': p['resources'] if 'resources' in p else '*'
+            }
+            result[domain]['parts'].append(detail)
         return result
 
     def _query_user(self, identifier):
