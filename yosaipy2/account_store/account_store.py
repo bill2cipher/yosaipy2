@@ -102,9 +102,9 @@ class AccountStore(account_abcs.CredentialsAccountStore,
             if domain not in result:
                 result[domain] = []
             detail = {
-                'domain': p['domain'],
-                'action': p['actions'] if 'actions' in p else '*',
-                'targets': p['targets'] if 'targets' in p else '*'
+                'domain': [p['domain']],
+                'actions': p['actions'] if 'actions' in p else ['*'],
+                'targets': p['targets'] if 'targets' in p else ['*']
             }
             result[domain].append(detail)
         return result

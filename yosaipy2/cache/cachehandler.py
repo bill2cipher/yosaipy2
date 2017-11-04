@@ -172,8 +172,8 @@ class DPCacheHandler(cache_abcs.CacheHandler):
 
     @staticmethod
     def _hm_get(keys, data):
-        result = {}
+        result = []
         for k in keys:
             if k in data:
-                result[k] = data[k]
+                result.append(data[k])
         return result

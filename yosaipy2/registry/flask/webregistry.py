@@ -49,14 +49,14 @@ class FlaskWebRegistry(WebRegistry):
             key=cookie_name,
             value=cookie_val,
             max_age=self.set_cookie_attributes.get('cookie_max_age', None),
-            path=self.set_cookie_attributes.get('cookie_path', None),
+            path=self.set_cookie_attributes.get('cookie_path', '/'),
             domain=self.set_cookie_attributes.get('cookie_domain', None),
             secure=self.set_cookie_attributes.get('cookie_secure', None),
             httponly=self.set_cookie_attributes.get('cookie_httponly', False)
         )
 
     def _delete_cookie(self, response, cookie_name):
-        response.set_cookie('cookie_name', '', expires=0)
+        response.set_cookie(cookie_name, '', expires=0)
 
     def register_response_callback(self):
         g.registry = self
