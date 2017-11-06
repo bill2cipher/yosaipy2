@@ -126,9 +126,11 @@ class DPCacheHandler(cache_abcs.CacheHandler):
         ttl = self.get_ttl(domain)
         creator = partial(creator_func, creator)
         creator = partial(self._hm_creator_wrapper, creator, keys)
-        result = self.cache_region.get_or_create(key=full_key,
-                                                 creator=creator,
-                                                 expiration_time=ttl)
+        result = self.cache_region.get_or_create(
+            key=full_key,
+            creator=creator,
+            expiration_time=ttl
+        )
         return None if result is NO_VALUE else self._hm_get(keys, result)
 
     def set(self, domain, identifier, value):

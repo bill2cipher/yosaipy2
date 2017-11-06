@@ -47,7 +47,6 @@ class SimpleIdentifierCollection(subject_abcs.MutableIdentifierCollection,
     to a scalar value.
     """
 
-    # yosai.core.re-ordered the argument list:
     def __init__(self, source_name=None, identifier=None,
                  identifier_collection=None):
         """

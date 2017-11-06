@@ -23,8 +23,6 @@ __maintainer__ = 'Darin Gordon'
 __email__ = 'dkcdkg@gmail.com'
 __status__ = 'Development'
 
-import threading
-
 from .exceptions import (
     AbsoluteExpiredSessionException,
     AccountException,
@@ -108,22 +106,26 @@ from yosaipy2.core.subject.identifier import (
 )
 
 from yosaipy2.core.session.session import (
-    AbstractSessionStore,
-    CachingSessionStore,
     SessionKey,
-    NativeSessionManager,
-    SessionStorageEvaluator,
-    DelegatingSession,
-    MemorySessionStore,
     NativeSessionHandler,
     SimpleSession,
+)
+
+from yosaipy2.core.session.session_store import (
+    AbstractSessionStore,
+    CachingSessionStore,
+    MemorySessionStore,
+    SessionStorageEvaluator,
+)
+
+from yosaipy2.core.session.manager import (
+    NativeSessionManager,
+    DelegatingSession
 )
 
 from yosaipy2.core.serialize.serialize import (
     SerializationManager,
 )
-
-thread_local = threading.local()  # use only one global instance
 
 from yosaipy2.core.subject.subject import (
     Yosai,

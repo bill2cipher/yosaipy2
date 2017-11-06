@@ -55,6 +55,17 @@ class Session(object):
         internal_attributes
     """
 
+    def __init__(self):
+        self._session_id = None
+
+    @property
+    def session_id(self):
+        return self._session_id
+
+    @session_id.setter
+    def session_id(self, v):
+        self._session_id = v
+
     @abstractmethod
     def touch(self):
         """
@@ -274,7 +285,7 @@ class SessionHandler(object):
         pass
 
     @abstractmethod
-    def on_stop(self, session):
+    def on_stop(self, session, session_key):
         pass
 
     @abstractmethod
@@ -282,8 +293,7 @@ class SessionHandler(object):
         pass
 
     @abstractmethod
-    def on_expiration(self, session, expired_session_exception=None,
-                      session_key=None):
+    def on_expiration(self, session, expired_session_exception=None, session_key=None):
         pass
 
     @abstractmethod
@@ -308,12 +318,12 @@ class SessionManager(object):
 
     @abstractmethod
     def start(self, session_context):
-        pass
         """
         Starts a new session based on the specified contextual initialization
         data, which can be used by the underlying implementation to determine
         how exactly to create the internal Session instance.
         """
+        pass
 
     @abstractmethod
     def get_session(self, session_key):
@@ -438,7 +448,7 @@ class NativeSessionManager(SessionManager):
         pass
 
     @abstractmethod
-    def stop(self, session_key):
+    def stop(self, session_key, identifier):
         """
         Explicitly stops the associated session, thereby releasing all of its
         resources.
