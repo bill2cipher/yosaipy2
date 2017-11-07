@@ -23,8 +23,9 @@ from yosaipy2.core import (
     MultiRealmAuthenticationException,
 )
 
-AuthenticationAttempt = namedtuple('AuthenticationAttempt',
-                                   'authentication_token, realms')
+AuthenticationAttempt = namedtuple(
+    'AuthenticationAttempt', 'authentication_token, realms'
+)
 
 
 def all_realms_successful_strategy(authc_attempt):

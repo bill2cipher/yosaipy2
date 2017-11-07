@@ -32,7 +32,8 @@ class JSONFormatter(logging.Formatter):
         self.mutate_json_record(json_record)
         return rapidjson.dumps(json_record)
 
-    def extra_from_record(self, record):
+    @staticmethod
+    def extra_from_record(record):
         """Returns `extra` dict you passed to logger.
 
         The `extra` keyword argument is used to populate the `__dict__` of
@@ -45,7 +46,8 @@ class JSONFormatter(logging.Formatter):
             if attr_name not in BUILTIN_ATTRS
         }
 
-    def json_record(self, message, extra, record, traceback):
+    @staticmethod
+    def json_record(message, extra, record, traceback):
         """Prepares a JSON payload which will be logged.
 
         Override this method to change JSON log format.
@@ -64,7 +66,8 @@ class JSONFormatter(logging.Formatter):
             extra['traceback'] = traceback
         return extra
 
-    def mutate_json_record(self, json_record):
+    @staticmethod
+    def mutate_json_record(json_record):
         """Override it to convert fields of `json_record` to needed types.
 
         Default implementation converts `datetime` to string in ISO8601 format.

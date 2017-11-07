@@ -147,8 +147,7 @@ from yosaipy2.core.authc.strategy import (
 from yosaipy2.core.authc.authc import (
     DefaultAuthenticator,
     TOTPToken,
-    UsernamePasswordToken,
-    token_info,
+    UsernamePasswordToken
 )
 
 from yosaipy2.core.authc.credential import (

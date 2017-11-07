@@ -68,6 +68,11 @@ class AuthenticationToken(object):
     def credentials(self, credentials):
         pass
 
+    @property
+    @abstractmethod
+    def token_info(self):
+        pass
+
 
 @six.add_metaclass(ABCMeta)
 class Authenticator(object):

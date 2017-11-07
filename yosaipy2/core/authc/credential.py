@@ -17,10 +17,9 @@ specific language governing permissions and limitations
 under the License.
 """
 
-import logging
 from passlib.context import CryptContext
 from passlib.totp import TokenError, TOTP
-
+from yosaipy2.core.utils.utils import get_logger
 from yosaipy2.core import (
     AuthenticationSettings,
     ConsumedTOTPToken,
@@ -31,8 +30,6 @@ from yosaipy2.core import (
     authc_abcs,
 )
 
-logger = logging.getLogger(__name__)
-
 
 class PasslibVerifier(authc_abcs.CredentialsVerifier):
     def __init__(self, settings):
@@ -40,6 +37,7 @@ class PasslibVerifier(authc_abcs.CredentialsVerifier):
         self.password_cc = self.create_password_crypt_context(authc_settings)
         self.totp_factory = create_totp_factory(authc_settings=authc_settings)
         self.supported_tokens = [UsernamePasswordToken, TOTPToken]
+        self._logger = get_logger()
 
     def verify_credentials(self, authc_token, authc_info):
         submitted = authc_token.credentials
@@ -68,7 +66,8 @@ class PasslibVerifier(authc_abcs.CredentialsVerifier):
         except (ValueError, TokenError):
             raise IncorrectCredentialsException
 
-    def get_stored_credentials(self, authc_token, authc_info):
+    @staticmethod
+    def get_stored_credentials(authc_token, authc_info):
         # look up the db credential type assigned to this type token:
         cred_type = authc_token.token_info['cred_type']
 
@@ -79,7 +78,8 @@ class PasslibVerifier(authc_abcs.CredentialsVerifier):
             msg = "{0} is required but unavailable from authc_info".format(cred_type)
             raise KeyError(msg)
 
-    def create_password_crypt_context(self, authc_settings):
+    @staticmethod
+    def create_password_crypt_context(authc_settings):
         context = dict(schemes=[authc_settings.preferred_algorithm])
         context.update(authc_settings.preferred_algorithm_context)
         return CryptContext(**context)
@@ -95,5 +95,4 @@ def create_totp_factory(env_var=None, file_path=None, authc_settings=None):
         authc_settings = AuthenticationSettings(yosai_settings)
 
     totp_context = authc_settings.totp_context
-
     return TOTP.using(**totp_context)

@@ -16,8 +16,6 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 """
-import logging
-import json
 from six.moves import zip_longest
 
 from yosaipy2.core import (
@@ -28,8 +26,7 @@ from yosaipy2.core import (
 )
 
 import collections
-
-logger = logging.getLogger(__name__)
+from yosaipy2.core.utils.utils import get_logger
 
 
 class Permission:
@@ -162,12 +159,12 @@ class ModularRealmAuthorizer(authz_abcs.Authorizer):
     def __init__(self):
         self.realms = None
         self.event_bus = None
+        self._logger = get_logger()
 
     def init_realms(self, realms):
         """
         :type realms: tuple
         """
-        # this eliminates the need for an authorizing_realms attribute:
         self.realms = tuple(realm for realm in realms
                             if isinstance(realm, realm_abcs.AuthorizingRealm))
         self.register_cache_clear_listener()
@@ -183,7 +180,6 @@ class ModularRealmAuthorizer(authz_abcs.Authorizer):
     # generators and sub-generators so as to optimize processing w/ each realm
     # and improve code readability
 
-    # new to Yosai:
     def _has_role(self, identifiers, role_s):
         """
         :type identifiers:  subject_abcs.IdentifierCollection
@@ -194,7 +190,6 @@ class ModularRealmAuthorizer(authz_abcs.Authorizer):
             for r in realm.has_role(identifiers, role_s):
                 yield r
 
-    # new to Yosai:
     def _is_permitted(self, identifiers, permission_s):
         """
         :type identifiers:  subject_abcs.IdentifierCollection
@@ -204,7 +199,6 @@ class ModularRealmAuthorizer(authz_abcs.Authorizer):
         """
 
         for realm in self.realms:
-            # the realm's is_permitted returns a generator
             for r in realm.is_permitted(identifiers, permission_s):
                 yield r
 
@@ -242,12 +236,9 @@ class ModularRealmAuthorizer(authz_abcs.Authorizer):
             results[permission] = results[permission] or is_permitted
 
         if log_results:
-            self.notify_event(identifiers,
-                              list(results.items()),
-                              'AUTHORIZATION.RESULTS')
+            self.notify_event(identifiers, list(results.items()), 'AUTHORIZATION.RESULTS')
 
-        results = set(results.items())
-        return results
+        return set(results.items())
 
     # yosai.core.refactored is_permitted_all to support ANY or ALL operations
     def is_permitted_collective(self, identifiers,
@@ -314,7 +305,6 @@ class ModularRealmAuthorizer(authz_abcs.Authorizer):
             msg = "Subject lacks permission(s) to satisfy logical operation"
             raise UnauthorizedException(msg)
 
-    # yosai.core.consolidates has_role functionality to one method:
     def has_role(self, identifiers, role_s, log_results=True):
         """
         :param identifiers: a collection of identifiers
@@ -342,9 +332,7 @@ class ModularRealmAuthorizer(authz_abcs.Authorizer):
             results[role] = results[role] or has_role
 
         if log_results:
-            self.notify_event(identifiers,
-                              list(results.items()),
-                              'AUTHORIZATION.RESULTS')  # before freezing
+            self.notify_event(identifiers, list(results.items()), 'AUTHORIZATION.RESULTS')
         results = set(results.items())
         return results
 
@@ -404,10 +392,6 @@ class ModularRealmAuthorizer(authz_abcs.Authorizer):
             msg = "Subject does not have role(s) assigned."
             raise UnauthorizedException(msg)
 
-    # --------------------------------------------------------------------------
-    # Event Communication
-    # --------------------------------------------------------------------------
-
     def session_clears_cache(self, items=None, topic=EVENT_TOPIC):
         try:
             identifier = items.identifiers.primary_identifier
@@ -416,7 +400,7 @@ class ModularRealmAuthorizer(authz_abcs.Authorizer):
         except AttributeError:
             msg = ('Could not clear authz_info from cache after event. '
                    'items: ' + str(items))
-            logger.warn(msg)
+            self._logger.warn(msg)
 
     def authc_clears_cache(self, identifier=None, topic=EVENT_TOPIC):
         try:
@@ -425,21 +409,18 @@ class ModularRealmAuthorizer(authz_abcs.Authorizer):
         except AttributeError:
             msg = ('Could not clear authc_info from cache after event. '
                    'identifiers: ' + identifier)
-            logger.warn(msg)
+            self._logger.warn(msg)
 
     def register_cache_clear_listener(self):
 
         try:
             self.event_bus.subscribe(self.session_clears_cache, 'SESSION.STOP')
-            self.event_bus.isSubscribed(self.session_clears_cache, 'SESSION.STOP')
             self.event_bus.subscribe(self.session_clears_cache, 'SESSION.EXPIRE')
-            self.event_bus.isSubscribed(self.session_clears_cache, 'SESSION.EXPIRE')
             self.event_bus.subscribe(self.authc_clears_cache, 'AUTHENTICATION.SUCCEEDED')
-            self.event_bus.isSubscribed(self.authc_clears_cache, 'AUTHENTICATION.SUCCEEDED')
 
         except AttributeError:
             msg = "Authorizer failed to register listeners to event bus"
-            logger.debug(msg)
+            self._logger.debug(msg)
 
     def notify_event(self, identifiers, items, topic, logical_operator=None):
         try:
@@ -452,8 +433,5 @@ class ModularRealmAuthorizer(authz_abcs.Authorizer):
             msg = "Could not publish {} event".format(topic)
             raise AttributeError(msg)
 
-    # --------------------------------------------------------------------------
-
     def __repr__(self):
-        return ("ModularRealmAuthorizer(realms={0})".
-                format(self.realms))
+        return "ModularRealmAuthorizer(realms={0})".format(self.realms)
