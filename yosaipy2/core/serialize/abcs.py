@@ -22,17 +22,6 @@ import six
 
 
 @six.add_metaclass(ABCMeta)
-class Serializable(object):
-    def __eq__(self, other):
-        if self is other:
-            return True
-
-        return (isinstance(other, self.__class__) and
-                self.__dict__ == other.__dict__)
-
-
-# taken from asphalt.serialization
-@six.add_metaclass(ABCMeta)
 class Serializer(object):
     """
     This abstract class defines the serializer API.
@@ -63,30 +52,3 @@ class Serializer(object):
     def mimetype(self):
         """Return the MIME type for this serialization format."""
 
-
-# taken from asphalt.serialization
-class CustomizableSerializer(Serializer):
-    """
-    This abstract class defines an interface for registering custom types on a serializer so that
-    the the serializer can be extended to (de)serialize a broader array of classes.
-    """
-
-    @abstractmethod
-    def register_custom_type(self, cls, marshaller, unmarshaller, typename):
-        """
-        Register a marshaller and/or unmarshaller for the given class.
-
-        The state object returned by the marshaller and passed to the unmarshaller can be any
-        serializable type. Usually a dictionary mapping of attribute names to values is used.
-
-        .. warning:: Registering marshallers/unmarshallers for any custom type will override any
-            serializer specific encoding/decoding hooks (respectively) already in place!
-
-        :param cls: the class to register
-        :param marshaller: a callable that takes the object to be marshalled as the argument and
-              returns a state object
-        :param unmarshaller: a callable that takes an uninitialized object and its state object
-            as arguments and restores the state of the object
-        :param typename: a unique identifier for the type (defaults to the ``module:varname``
-            reference to the class)
-        """
