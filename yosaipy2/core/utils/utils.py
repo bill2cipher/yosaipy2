@@ -22,14 +22,15 @@ import sys
 import collections
 import datetime
 import time
-import threading
 import six
 import logging
 from pythonjsonlogger import jsonlogger
+from werkzeug.local import Local
 
 
-class ThreadStateManager(threading.local):
+class ThreadStateManager(Local):
     def __init__(self):
+        super(ThreadStateManager, self).__init__()
         self.stack = []
 
 

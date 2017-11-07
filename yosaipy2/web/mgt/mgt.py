@@ -17,7 +17,6 @@ specific language governing permissions and limitations
 under the License.
 """
 import base64
-import logging
 
 from yosaipy2.core import (
     AbstractRememberMeManager,
@@ -33,8 +32,6 @@ from yosaipy2.web import (
     WebSessionKey,
     web_subject_abcs,
 )
-
-logger = logging.getLogger(__name__)
 
 
 class WebSecurityManager(NativeSecurityManager):
@@ -61,15 +58,16 @@ class WebSecurityManager(NativeSecurityManager):
         """
         :type realms: tuple
         """
-
-        super(WebSecurityManager, self).__init__(yosai,
-                                                 settings,
-                                                 realms=realms,
-                                                 cache_handler=cache_handler,
-                                                 serialization_manager=serialization_manager,
-                                                 session_manager=WebSessionManager(settings),
-                                                 subject_store=SubjectStore(WebSessionStorageEvaluator()),
-                                                 remember_me_manager=CookieRememberMeManager(settings))
+        super(WebSecurityManager, self).__init__(
+            yosai,
+            settings,
+            realms=realms,
+            cache_handler=cache_handler,
+            serialization_manager=serialization_manager,
+            session_manager=WebSessionManager(settings),
+            subject_store=SubjectStore(WebSessionStorageEvaluator()),
+            remember_me_manager=CookieRememberMeManager(settings)
+        )
 
     def create_subject_context(self, subject):
         web_registry = subject.web_registry
@@ -78,8 +76,10 @@ class WebSecurityManager(NativeSecurityManager):
     # overridden:
     def create_session_context(self, subject_context):
         web_registry = subject_context.resolve_web_registry()
-        session_context = {'web_registry': web_registry,
-                           'host': getattr(self, 'host', None)}
+        session_context = {
+            'web_registry': web_registry,
+            'host': getattr(self, 'host', None)
+        }
         return session_context
 
     # overridden
@@ -136,14 +136,16 @@ class WebSecurityManager(NativeSecurityManager):
         # must run after resolve_identifiers:
         remembered = getattr(subject_context, 'remembered', None)
 
-        return WebDelegatingSubject(identifiers=identifiers,
-                                    remembered=remembered,
-                                    authenticated=authenticated,
-                                    host=host,
-                                    session=session,
-                                    session_creation_enabled=session_creation_enabled,
-                                    security_manager=security_manager,
-                                    web_registry=subject_context.web_registry)
+        return WebDelegatingSubject(
+            identifiers=identifiers,
+            remembered=remembered,
+            authenticated=authenticated,
+            host=host,
+            session=session,
+            session_creation_enabled=session_creation_enabled,
+            security_manager=security_manager,
+            web_registry=subject_context.web_registry
+        )
 
 
 class CookieRememberMeManager(AbstractRememberMeManager):
@@ -180,7 +182,7 @@ class CookieRememberMeManager(AbstractRememberMeManager):
                    "is required to obtain a web registry in order to"
                    "set the RememberMe cookie. Returning immediately "
                    "and ignoring RememberMe operation.")
-            logger.debug(msg)
+            self._logger.debug(msg)
 
     def is_identity_removed(self, subject_context):
         try:
@@ -213,7 +215,7 @@ class CookieRememberMeManager(AbstractRememberMeManager):
                        "This is required to obtain a web registry "
                        "in order to retrieve the RememberMe cookie. Returning "
                        "immediately and ignoring rememberMe operation.")
-                logger.debug(msg)
+                self._logger.debug(msg)
 
             return None
 
@@ -226,9 +228,7 @@ class CookieRememberMeManager(AbstractRememberMeManager):
         #     return None
 
         if remember_me:
-
-            logger.debug("Acquired encoded identity [" + str(remember_me) + "]")
-
+            self._logger.debug("Acquired encoded identity [" + str(remember_me) + "]")
             encrypted = base64.b64decode(remember_me)
 
             return encrypted

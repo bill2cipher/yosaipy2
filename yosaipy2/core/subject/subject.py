@@ -17,9 +17,8 @@ specific language governing permissions and limitations
 under the License.
 """
 import functools
-import logging
 from contextlib import contextmanager
-
+from yosaipy2.core.utils.utils import get_logger
 from yosaipy2.core import (
     SessionStorageEvaluator,
     LazySettings,
@@ -30,8 +29,6 @@ from yosaipy2.core import (
     UnauthenticatedException,
     subject_abcs,
 )
-
-logger = logging.getLogger(__name__)
 
 
 class SubjectContext(subject_abcs.SubjectContext):
@@ -58,6 +55,7 @@ class SubjectContext(subject_abcs.SubjectContext):
         self.session_id = None
         self.session_creation_enabled = True
         self.subject = None
+        self._logger = get_logger()
 
     def resolve_security_manager(self):
         security_manager = self.security_manager
@@ -65,7 +63,7 @@ class SubjectContext(subject_abcs.SubjectContext):
             msg = ("No SecurityManager available in subject context.  " +
                    "Falling back to Yosai.security_manager for" +
                    " lookup.")
-            logger.debug(msg)
+            self._logger.debug(msg)
 
             try:
                 security_manager = self.yosai.security_manager
@@ -73,7 +71,7 @@ class SubjectContext(subject_abcs.SubjectContext):
                 msg = ("SubjectContext.resolve_security_manager cannot "
                        "obtain security_manager! No SecurityManager available "
                        "via Yosai.  Heuristics exhausted.")
-                logger.debug(msg, exc_info=True)
+                self._logger.debug(msg, exc_info=True)
 
         return security_manager
 
@@ -205,6 +203,7 @@ class DelegatingSubject(subject_abcs.Subject):
         self.remembered = remembered
         self.authenticated = authenticated
         self.host = host
+        self._identifiers = None
 
         if session is not None:
             session.stop_session_callback = self.session_stopped
@@ -395,7 +394,6 @@ class DelegatingSubject(subject_abcs.Subject):
         # login raises an AuthenticationException if it fails to authenticate:
         subject = self.security_manager.login(subject=self,
                                               authc_token=authc_token)
-        identifiers = None
         host = None
         if isinstance(subject, DelegatingSubject):
             # directly reference the attributes in case there are assumed
@@ -436,11 +434,11 @@ class DelegatingSubject(subject_abcs.Subject):
         """
         :type create:  bool
         """
-        msg = ("{0} attempting to get session; create = {1}; \'session is None\' ="
-               "{2} ; \'session has id\' = {3}".
-               format(self.__class__.__name__, create, (self.session is None), str(
-            self.session is not None and bool(self.session.session_id))))
-        logger.debug(msg)
+        msg = ("{0} attempting to get session; create = {1}; 'session is None' ="
+               "{2} ; 'session has id' = {3}").format(
+            self.__class__.__name__, create, (self.session is None),
+            str(self.session is not None and bool(self.session.session_id)))
+        self._logger.debug(msg)
 
         if self.session and not create:  # touching a new session is redundant
             self.session.touch()  # this is used to reset the idle timer (new to yosai)
@@ -457,7 +455,7 @@ class DelegatingSubject(subject_abcs.Subject):
                 raise ValueError(msg)
 
             msg = ("Starting session for host ", str(self.host))
-            logger.debug(msg)
+            self._logger.debug(msg)
 
             session_context = self.create_session_context()
             session = self.security_manager.start(session_context)
@@ -467,8 +465,7 @@ class DelegatingSubject(subject_abcs.Subject):
         return self.session
 
     def create_session_context(self):
-        session_context = {}
-        session_context['host'] = self.host
+        session_context = {'host': self.host}
         return session_context
 
     def clear_run_as_identities_internal(self):
@@ -478,7 +475,7 @@ class DelegatingSubject(subject_abcs.Subject):
             msg = ("clearrunasidentitiesinternal: Encountered session "
                    "exception trying to clear 'runAs' identities during "
                    "logout.  This can generally safely be ignored.")
-            logger.debug(msg, exc_info=True)
+            self._logger.debug(msg, exc_info=True)
 
     def logout(self):
         try:
@@ -642,6 +639,7 @@ class SubjectStore(object):
         self.session_storage_evaluator = ss_evaluator
         self.dsc_isk = 'identifiers_session_key'
         self.dsc_ask = 'authenticated_session_key'
+        self._logger = get_logger()
 
     def is_session_storage_enabled(self, subject):
         """
@@ -676,7 +674,7 @@ class SubjectStore(object):
                    "been disabled: identity and authentication state are "
                    "expected to be initialized on every request or "
                    "invocation.".format(subject))
-            logger.debug(msg)
+            self._logger.debug(msg)
 
         return subject
 
@@ -714,14 +712,14 @@ class SubjectStore(object):
                 msg = ('merge_identity _DID NOT_ find a session for current subject '
                        'and so created a new one (session_id: {0}). Now merging '
                        'internal attributes: {1}'.format(session.session_id, to_set))
-                logger.debug(msg)
+                self._logger.debug(msg)
                 session.set_internal_attributes(to_set)
         else:
             self.merge_identity_with_session(current_identifiers, subject, session)
 
     def merge_identity_with_session(self, current_identifiers, subject, session):
         msg = 'merge_identity _DID_ find a session for current subject.'
-        logger.debug(msg)
+        self._logger.debug(msg)
 
         to_remove = []
         to_set = []
@@ -769,6 +767,8 @@ class SubjectStore(object):
 
 # moved from its own yosai module so as to avoid circular importing:
 class Yosai(object):
+    _logger = get_logger()
+
     def __init__(self, env_var=None, file_path=None, session_attributes=None):
         """
         :type session_attributes: tuple
@@ -808,19 +808,19 @@ class Yosai(object):
             global_yosai_context.stack = []
             global_subject_context.stack = []
 
-    @staticmethod
-    def get_current_subject():
+    @classmethod
+    def get_current_subject(cls):
         try:
             subject = global_subject_context.stack[-1]
             msg = ('A subject instance DOES exist in the global context. '
                    'Touching and then returning it.')
-            logger.debug(msg)
+            cls._logger.debug(msg)
             subject.get_session().touch()
             return subject
 
         except IndexError:
             msg = 'A subject instance _DOES NOT_ exist in the global context.  Creating one.'
-            logger.debug(msg)
+            cls._logger.debug(msg)
 
             subject = Yosai.get_current_yosai()._get_subject()
 
@@ -1040,7 +1040,7 @@ class Yosai(object):
         return outer_wrap
 
     def __eq__(self, other):
-        return self._security_manager == other._security_manager
+        return self.security_manager == other.security_manager
 
 
 class SecurityManagerCreator(object):

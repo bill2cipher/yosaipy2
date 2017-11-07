@@ -16,9 +16,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 """
-import logging
 import copy
-
+from yosaipy2.core.utils.utils import get_logger
 from cryptography.fernet import Fernet
 from abc import abstractmethod
 
@@ -37,8 +36,6 @@ from yosaipy2.core import (
     event_bus,
     mgt_abcs,
 )
-
-logger = logging.getLogger(__name__)
 
 
 class AbstractRememberMeManager(mgt_abcs.RememberMeManager):
@@ -90,35 +87,12 @@ class AbstractRememberMeManager(mgt_abcs.RememberMeManager):
     """
 
     def __init__(self, settings):
-
+        self._logger = get_logger()
         default_cipher_key = RememberMeSettings(settings).default_cipher_key
 
         # new to yosai.core.
-        self.serialization_manager = None  # it will be injected
+        self.serialization_manager = None
 
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!i!!!!!!!!
-        # !!!
-        #
-        #
-        #      888
-        #      888
-        #      888
-        #  .d88888    8888b.  88888b.     .d88b.      .d88b.   888 888b
-        # d88" 888        "88 b888 "88b   d88P"88b    d8P  Y8  b888P"``
-        # 888  888    .d88888 8888  888   888  888    8888888  8888
-        # Y88b 888    888  88 8888  888   Y88b 888    Y8b.     888
-        #  "Y88888    "Y88888 8888  888   "Y888888    "Y8888   888
-        #                                     8888
-        #                                     .Y8b
-        #                                  "Y88P"
-        #
-        #                        HEY  YOU!
-        # !!! Generate your own cipher key using the instructions above and
-        # !!! update your yosai settings file to include it.  The code below
-        # !!! references this key.  Yosai does not include a default key.
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        # as default, the encryption key == decryption key:
         self.encryption_cipher_key = default_cipher_key
         self.decryption_cipher_key = default_cipher_key
 
@@ -156,7 +130,7 @@ class AbstractRememberMeManager(mgt_abcs.RememberMeManager):
             msg = ("AuthenticationToken did not indicate that RememberMe is "
                    "requested.  RememberMe functionality will not be executed "
                    "for corresponding account.")
-            logger.debug(msg)
+            self._logger.debug(msg)
 
     def remember_identity(self, subject, authc_token, account_id):
         """
@@ -282,7 +256,7 @@ class AbstractRememberMeManager(mgt_abcs.RememberMeManager):
                "corrupted identifier.  This could also be due to a recently "
                "changed encryption key.  The remembered identity will be "
                "forgotten and not used for this request. ", exc)
-        logger.debug(msg)
+        self._logger.debug(msg)
 
         self.forget_identity(subject_context)
 
@@ -350,7 +324,7 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
                  session_manager=None,
                  remember_me_manager=None,
                  subject_store=SubjectStore()):
-
+        self._logger = get_logger()
         self.yosai = yosai
         self.subject_store = subject_store
         self.realms = realms
@@ -591,7 +565,7 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
                        + "during on_successful_login.  RememberMe services "
                        + "will not be performed for account_id [" + str(account_id) +
                        "].")
-                logger.warning(msg, exc_info=True)
+                self._logger.warning(msg, exc_info=True)
 
         else:
 
@@ -599,7 +573,7 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
                    " instance does not have a [RememberMeManager] instance " +
                    "configured.  RememberMe services will not be performed " +
                    "for account_id [" + str(account_id) + "].")
-            logger.info(msg)
+            self._logger.info(msg)
 
     def remember_me_failed_login(self, authc_token, authc_exc, subject):
         rmm = self.remember_me_manager
@@ -612,7 +586,7 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
                        "[" + rmm.__class__.__name__ + "] threw an exception "
                                                       "during on_failed_login for AuthenticationToken [" +
                        str(authc_token) + "].")
-                logger.warning(msg, exc_info=True)
+                self._logger.warning(msg, exc_info=True)
 
     def remember_me_logout(self, subject):
         rmm = self.remember_me_manager
@@ -624,7 +598,7 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
                        rmm.__class__.__name__ + "] threw an exception during "
                                                 "on_logout for subject with identifiers [{identifiers}]".
                        format(identifiers=subject.identifiers if subject else None))
-                logger.warning(msg, exc_info=True)
+                self._logger.warning(msg, exc_info=True)
 
     def login(self, subject, authc_token):
         """
@@ -668,7 +642,7 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
             except Exception:
                 msg = ("on_failed_login method raised an exception.  Logging "
                        "and propagating original AuthenticationException.")
-                logger.info(msg, exc_info=True)
+                self._logger.info(msg, exc_info=True)
             raise
 
         logged_in = self.create_subject(authc_token=authc_token,
@@ -745,12 +719,12 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
         if subject_context.resolve_security_manager() is not None:
             msg = ("Subject Context resolved a security_manager "
                    "instance, so not re-assigning.  Returning.")
-            logger.debug(msg)
+            self._logger.debug(msg)
             return subject_context
 
         msg = ("No security_manager found in context.  Adding self "
                "reference.")
-        logger.debug(msg)
+        self._logger.debug(msg)
 
         subject_context.security_manager = self
 
@@ -774,7 +748,7 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
         """
         if subject_context.resolve_session() is not None:
             msg = "Context already contains a session.  Returning."
-            logger.debug(msg)
+            self._logger.debug(msg)
             return subject_context
 
         try:
@@ -790,7 +764,7 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
             msg = ("Resolved subject_subject_context context session is "
                    "invalid.  Ignoring and creating an anonymous "
                    "(session-less) Subject instance.")
-            logger.debug(msg, exc_info=True)
+            self._logger.debug(msg, exc_info=True)
 
         return subject_context
 
@@ -821,14 +795,14 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
         if not identifiers:
             msg = ("No identity (identifier_collection) found in the "
                    "subject_context.  Looking for a remembered identity.")
-            logger.debug(msg)
+            self._logger.debug(msg)
 
             identifiers = self.get_remembered_identity(subject_context)
 
             if identifiers:
                 msg = ("Found remembered IdentifierCollection.  Adding to the "
                        "context to be used for subject construction.")
-                logger.debug(msg)
+                self._logger.debug(msg)
 
                 subject_context.identifiers = identifiers
                 subject_context.remembered = True
@@ -836,7 +810,7 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
             else:
                 msg = ("No remembered identity found.  Returning original "
                        "context.")
-                logger.debug(msg)
+                self._logger.debug(msg)
 
         return subject_context
 
@@ -879,14 +853,14 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
         if identifiers:
             msg = ("Logging out subject with primary identifier {0}".format(
                 identifiers.primary_identifier))
-            logger.debug(msg)
+            self._logger.debug(msg)
 
         try:
             # this removes two internal attributes from the session:
             self.delete(subject)
         except Exception:
             msg = "Unable to cleanly unbind Subject.  Ignoring (logging out)."
-            logger.debug(msg, exc_info=True)
+            self._logger.debug(msg, exc_info=True)
 
         finally:
             try:
@@ -894,7 +868,7 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
             except Exception:
                 msg2 = ("Unable to cleanly stop Session for Subject. "
                         "Ignoring (logging out).")
-                logger.debug(msg2, exc_info=True)
+                self._logger.debug(msg2, exc_info=True)
 
     def stop_session(self, subject):
         session = subject.get_session(False)
@@ -915,5 +889,5 @@ class NativeSecurityManager(mgt_abcs.SecurityManager):
                 msg = ("Delegate RememberMeManager instance of type [" +
                        rmm.__class__.__name__ + "] raised an exception during "
                                                 "get_remembered_identifiers().")
-                logger.warning(msg, exc_info=True)
+                self._logger.warning(msg, exc_info=True)
         return None

@@ -16,7 +16,6 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 """
-import logging
 from uuid import uuid4
 import time
 from yosaipy2.core import (
@@ -30,8 +29,7 @@ from yosaipy2.core import (
     TOTPToken,
     realm_abcs,
 )
-
-logger = logging.getLogger(__name__)
+from yosaipy2.core.utils.utils import get_logger
 
 
 class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
@@ -56,6 +54,7 @@ class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
         :authc_verifiers: tuple of Verifier objects
         """
         self.name = name
+        self._logger = get_logger()
         self.account_store = account_store
         self.authc_verifiers = authc_verifiers  # a tuple
         self.permission_verifier = permission_verifier
@@ -87,7 +86,7 @@ class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
                            the SimpleIdentifierCollection (identifiers)
         """
         msg = "Clearing cache for: " + str(identifier)
-        logger.debug(msg)
+        self._logger.debug(msg)
 
         self.clear_cached_authc_info(identifier)
         self.clear_cached_authorization_info(identifier)
@@ -103,7 +102,7 @@ class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
                            the SimpleIdentifierCollection (identifiers)
         """
         msg = "Clearing cached authc_info for [{0}]".format(identifier)
-        logger.debug(msg)
+        self._logger.debug(msg)
 
         self.cache_handler.delete('authentication:' + self.name, identifier)
 
@@ -121,7 +120,7 @@ class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
                            the SimpleIdentifierCollection (identifiers)
         """
         msg = "Clearing cached authz_info for [{0}]".format(identifier)
-        logger.debug(msg)
+        self._logger.debug(msg)
         key = 'authorization:permissions:' + self.name
         self.cache_handler.delete(key, identifier)
 
@@ -163,7 +162,7 @@ class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
             msg = ("Could not obtain cached credentials for [{0}].  "
                    "Will try to acquire credentials from account store."
                    .format(identifier))
-            logger.debug(msg)
+            self._logger.debug(msg)
 
             # account_info is a dict
             account_info = self.account_store.get_authc_info(identifier)
@@ -177,7 +176,7 @@ class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
         try:
             msg2 = ("Attempting to get cached credentials for [{0}]"
                     .format(identifier))
-            logger.debug(msg2)
+            self._logger.debug(msg2)
 
             # account_info is a dict
             account_info = ch.get_or_create(domain='authentication:' + self.name,
@@ -191,7 +190,7 @@ class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
         except ValueError:
             msg3 = ("No account credentials found for identifiers [{0}].  "
                     "Returning None.".format(identifier))
-            logger.warning(msg3)
+            self._logger.warning(msg3)
 
         if account_info:
             account_info['account_id'] = SimpleIdentifierCollection(source_name=self.name,
@@ -300,7 +299,7 @@ class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
             msg = ("Could not obtain cached permissions for [{0}].  "
                    "Will try to acquire permissions from account store."
                    .format(identifier))
-            logger.debug(msg)
+            self._logger.debug(msg)
 
             # permissions is a dict:  {'domain': json blob of lists of dicts}
             permissions = self.account_store.get_authz_permissions(identifier)
@@ -313,7 +312,7 @@ class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
         try:
             msg2 = ("Attempting to get cached authz_info for [{0}]"
                     .format(identifier))
-            logger.debug(msg2)
+            self._logger.debug(msg2)
 
             domain = 'authorization:permissions:' + self.name
 
@@ -328,7 +327,7 @@ class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
         except ValueError:
             msg3 = ("No permissions found for identifiers [{0}].  "
                     "Returning None.".format(identifier))
-            logger.warning(msg3)
+            self._logger.warning(msg3)
 
         except AttributeError:
             # this means the cache_handler isn't configured
@@ -346,7 +345,7 @@ class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
             msg = ("Could not obtain cached roles for [{0}].  "
                    "Will try to acquire roles from account store."
                    .format(identifier))
-            logger.debug(msg)
+            self._logger.debug(msg)
 
             roles = self.account_store.get_authz_roles(identifier)
             if not roles:
@@ -358,7 +357,7 @@ class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
         try:
             msg2 = ("Attempting to get cached roles for [{0}]"
                     .format(identifier))
-            logger.debug(msg2)
+            self._logger.debug(msg2)
 
             roles = self.cache_handler.get_or_create(
                 domain='authorization:roles:' + self.name,
@@ -371,7 +370,7 @@ class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
         except ValueError:
             msg3 = ("No roles found for identifiers [{0}].  "
                     "Returning None.".format(identifier))
-            logger.warning(msg3)
+            self._logger.warning(msg3)
 
         return set(roles)
 
@@ -426,7 +425,7 @@ class AccountStoreRealm(realm_abcs.TOTPAuthenticatingRealm,
         if not assigned_role_s:
             msg = 'has_role:  no roles obtained from account_store for [{0}]'. \
                 format(identifier)
-            logger.warning(msg)
+            self._logger.warning(msg)
             for role in required_role_s:
                 yield (role, False)
         else:

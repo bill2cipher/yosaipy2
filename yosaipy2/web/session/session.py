@@ -16,7 +16,6 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 """
-import logging
 import binascii
 import os
 import collections
@@ -34,8 +33,7 @@ from yosaipy2.core import (
 from yosaipy2.web import (
     CSRFTokenException,
 )
-
-logger = logging.getLogger(__name__)
+from yosaipy2.core.utils.utils import get_logger
 
 
 class WebSessionKey(collections.namedtuple('WebSessionKey', 'session_id, web_registry')):
@@ -46,7 +44,6 @@ class WebSessionKey(collections.namedtuple('WebSessionKey', 'session_id, web_reg
 
 
 class WebSimpleSession(SimpleSession):
-
     def __init__(self, csrf_token, absolute_timeout, idle_timeout, host=None):
         super(WebSimpleSession, self).__init__(absolute_timeout, idle_timeout, host=host)
         self.set_internal_attribute('flash_messages',
@@ -85,10 +82,10 @@ class WebSimpleSession(SimpleSession):
 
 
 class WebSessionHandler(NativeSessionHandler):
-
     def __init__(self, delete_invalid_sessions=True):
         super(WebSessionHandler, self).__init__(delete_invalid_sessions=delete_invalid_sessions)
         self.is_session_id_cookie_enabled = True
+        self._logger = get_logger()
 
     # overridden
     def on_start(self, session, session_context):
@@ -103,12 +100,12 @@ class WebSessionHandler(NativeSessionHandler):
 
         if self.is_session_id_cookie_enabled:
             web_registry.session_id = session_id
-            logger.debug("Set SessionID cookie using id: " + str(session_id))
+            self._logger.debug("Set SessionID cookie using id: " + str(session_id))
 
         else:
             msg = ("Session ID cookie is disabled.  No cookie has been set for "
                    "new session with id: " + str(session_id))
-            logger.debug(msg)
+            self._logger.debug(msg)
 
     # new to yosai:
     def on_recreate_session(self, new_session_id, session_key):
@@ -122,7 +119,7 @@ class WebSessionHandler(NativeSessionHandler):
         super(WebSessionHandler, self).on_stop(session, session_key)
         msg = ("Session has been stopped (subject logout or explicit stop)."
                "  Removing session ID cookie.")
-        logger.debug(msg)
+        self._logger.debug(msg)
 
         web_registry = session_key.web_registry
         del web_registry.session_id
@@ -161,17 +158,17 @@ class WebSessionHandler(NativeSessionHandler):
             msg = ("Unable to resolve session ID from SessionKey [{0}]."
                    "Returning null to indicate a session could not be "
                    "found.".format(session_key))
-            logger.debug(msg)
+            self._logger.debug(msg)
             return None
 
         return self.session_store.read(session_id)
-
 
 
 class WebSessionManager(NativeSessionManager):
     """
     Web-application capable SessionManager implementation
     """
+
     def __init__(self, settings):
         super(WebSessionManager, self).__init__(settings, session_handler=WebSessionHandler())
 
@@ -189,8 +186,8 @@ class WebSessionManager(NativeSessionManager):
 
         self.session_handler.on_recreate_session(new_session_id, session_key)
 
-        logger.debug('Re-created SessionID. [old: {0}, new: {1}]'.
-                     format(session_key.session_id, new_session_id))
+        self._logger.debug('Re-created SessionID. [old: {0}, new: {1}]'.
+                           format(session_key.session_id, new_session_id))
 
         new_session_key = WebSessionKey(new_session_id,
                                         web_registry=session_key.web_registry)
@@ -243,11 +240,11 @@ class WebSessionManager(NativeSessionManager):
                                    host=session_context.get('host'))
 
         msg = "Creating session. "
-        logger.debug(msg)
+        self._logger.debug(msg)
 
         msg = ("Creating new EIS record for new session instance [{0}]".
                format(session))
-        logger.debug(msg)
+        self._logger.debug(msg)
 
         sessionid = self.session_handler.create_session(session)
         if not sessionid:  # new to yosai
@@ -259,7 +256,6 @@ class WebSessionManager(NativeSessionManager):
 
 # new to yosai:
 class WebDelegatingSession(DelegatingSession):
-
     def __init__(self, session_manager, session_key):
         super(WebDelegatingSession, self).__init__(session_manager, session_key)
 

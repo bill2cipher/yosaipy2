@@ -21,6 +21,7 @@ from yosaipy2.core import cache_abcs
 from dogpile.cache import make_region
 from functools import partial
 from dogpile.cache.api import NO_VALUE
+from settings import CacheSettings
 
 
 class DPCacheHandler(cache_abcs.CacheHandler):
@@ -29,7 +30,14 @@ class DPCacheHandler(cache_abcs.CacheHandler):
         You may either explicitly configure the CacheHandler or default to
         settings defined in a yaml file.
         """
+        cache_settings = CacheSettings(settings)
         self.region_name = "dogpile"
+        self.absolute_ttl = cache_settings.absolute_ttl
+        self.credentials_ttl = cache_settings.credentials_ttl
+        self.authz_info_ttl = cache_settings.authz_info_ttl
+        self.session_ttl = cache_settings.session_abs_ttl
+        self.region_name = cache_settings.region_name
+        self.region_arguments = cache_settings.region_arguments
         if serialization_manager:
             self.serialization_manager = serialization_manager
         else:
@@ -57,11 +65,11 @@ class DPCacheHandler(cache_abcs.CacheHandler):
             raise AttributeError(msg)
         return cache_region
 
-    @staticmethod
-    def get_ttl(key):
-        return 60
+    def get_ttl(self, key):
+        return getattr(self, key + '_ttl', self.absolute_ttl)
 
-    def generate_key(self, identifier, domain):
+    @staticmethod
+    def generate_key(identifier, domain):
         # simple for now yet TBD:
         return "yosai:{0}:{1}".format(identifier, domain)
 
@@ -81,7 +89,8 @@ class DPCacheHandler(cache_abcs.CacheHandler):
         threads where by the first requesting thread obtains exclusive privilege
         to generate the new object while other requesting threads wait for the
         value and then return it.
-
+        :param domain:
+        :param identifier:
         :param creator_func: the function called to generate a new
                              Serializable object for cache
         :type creator_func:  function

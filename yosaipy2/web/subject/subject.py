@@ -17,9 +17,7 @@ specific language governing permissions and limitations
 under the License.
 """
 import functools
-import logging
 from contextlib import contextmanager
-
 from yosaipy2.core import (
     AuthorizationException,
     SubjectContext,
@@ -36,8 +34,6 @@ from yosaipy2.web import (
     web_subject_abcs,
 )
 
-logger = logging.getLogger(__name__)
-
 
 class WebSubjectContext(SubjectContext,
                         web_subject_abcs.WebSubjectContext):
@@ -51,7 +47,6 @@ class WebSubjectContext(SubjectContext,
         :subject_context:  WebSubjectContext
         """
         super(WebSubjectContext, self).__init__(yosai, security_manager)
-
         self.web_registry = web_registry
 
     # overridden:
@@ -71,7 +66,7 @@ class WebSubjectContext(SubjectContext,
                 return self.subject.web_registry
             except AttributeError:  # implies that it's not a WebSubject
                 msg = "WebSubjectContext could not find a WebRegistry."
-                logger.warn(msg)
+                self._logger.warn(msg)
                 return None
 
         return registry
@@ -151,10 +146,6 @@ class WebYosai(Yosai):
         """
         Returns the currently accessible Subject available to the calling code
         depending on runtime environment.
-
-        :param web_registry:  The WebRegistry instance that knows how to interact
-                              with the web application's request and response APIs
-
         :returns: the Subject currently accessible to the calling code
         """
         web_registry = WebYosai.get_current_webregistry()
@@ -195,19 +186,19 @@ class WebYosai(Yosai):
             msg = 'A yosai instance does not exist in the global context.'
             raise IndexError(msg)
 
-    @staticmethod
-    def get_current_subject():
+    @classmethod
+    def get_current_subject(cls):
         try:
             subject = global_subject_context.stack[-1]
             msg = ('A subject instance DOES exist in the global context. '
                    'Touching and then returning it.')
-            logger.debug(msg)
+            cls._logger.debug(msg)
             subject.get_session().touch()
             return subject
 
         except IndexError:
             msg = 'A subject instance _DOES NOT_ exist in the global context.  Creating one.'
-            logger.debug(msg)
+            cls._logger.debug(msg)
 
             subject = Yosai.get_current_yosai()._get_subject()
             global_subject_context.stack.append(subject)
@@ -219,7 +210,7 @@ class WebYosai(Yosai):
                 msg = ('A remembered subject from the global context has an '
                        'idle-expired session.  Re-creating a new subject '
                        'instance/session for it.')
-                logger.debug(msg)
+                cls._logger.debug(msg)
                 global_subject_context.stack.pop()
                 subject = Yosai.get_current_yosai()._get_subject()
                 global_subject_context.stack.append(subject)
