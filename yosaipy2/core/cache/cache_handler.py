@@ -56,8 +56,8 @@ class DPCacheHandler(CacheHandler):
     def create_cache_region(self, name):
         try:
             cache_region = make_region(name=name).configure(
-                'dogpile.cache.memory',
-                expiration_time=3600,
+                'yosaipy2.cache.redis',
+                redis_expiration_time=3600,
             )
         except AttributeError:
             one = 'serialization_manager not set' if not self.serialization_manager else ''

@@ -42,3 +42,7 @@ class CacheHandler:
     @abstractmethod
     def delete(self, key, identifier):
         pass
+
+    @abstractmethod
+    def hmget_or_create(self, domain, identifier, keys, creator_func, creator):
+        pass
