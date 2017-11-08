@@ -28,7 +28,11 @@ class CacheHandler:
         pass
 
     @abstractmethod
-    def get_or_create(self, key, identifier, creator_func):
+    def get_or_create(self, domain, identifier, creator_func, creator):
+        pass
+
+    @abstractmethod
+    def hmget_or_create(self, domain, identifier, keys, creator_func, creator):
         pass
 
     @abstractmethod

@@ -36,7 +36,6 @@ install_requires = [
     'chardet==3.0.4',
     'click==6.7',
     'cryptography==2.1.1',
-    'dogpile==0.2.2',
     'dogpile.cache==0.6.4',
     'enum34==1.1.6',
     'Flask==0.10.1',
@@ -81,7 +80,7 @@ install_requires = [
 
 setup(
     name='yosaipy2',
-    version='0.3.3',
+    version='0.3.4',
     description="Yosai is a powerful security framework with an intuitive api.",
     long_description=README,
     classifiers=[

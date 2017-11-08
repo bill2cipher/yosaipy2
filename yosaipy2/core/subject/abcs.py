@@ -209,7 +209,7 @@ class SubjectContext(object):
         pass
 
     @abstractmethod
-    def resolve_identifiers(self):
+    def resolve_identifiers(self, session):
         pass
 
     @abstractmethod
@@ -217,11 +217,11 @@ class SubjectContext(object):
         pass
 
     @abstractmethod
-    def resolve_authenticated(self):
+    def resolve_authenticated(self, session):
         pass
 
     @abstractmethod
-    def resolve_host(self):
+    def resolve_host(self, session):
         pass
 
     def __eq__(self, other):
@@ -354,9 +354,9 @@ class Subject(object):
         """
         pass
 
-    @property
+    @identifiers.setter
     @abstractmethod
-    def identifiers(self):
+    def identifiers(self, v):
         """
         Returns this Subject's principals (identifying attributes) in the form
         of an IdentifierCollection or None if this Subject is anonymous because

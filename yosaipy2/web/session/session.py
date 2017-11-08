@@ -132,10 +132,10 @@ class WebSessionHandler(NativeSessionHandler):
         :type session_key:  session_abcs.SessionKey
         """
         super(WebSessionHandler, self).on_expiration(session, ese, session_key)
-        self.on_invalidation(session_key)
+        self.on_invalidation(session_key=session_key)
 
     # overridden
-    def on_invalidation(self, session_key, session=None, ise=None):
+    def on_invalidation(self, session=None, ise=None, session_key=None):
         """
         :type session_key:  session_abcs.SessionKey
         :type session: session_abcs.Session

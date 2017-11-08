@@ -17,14 +17,14 @@ specific language governing permissions and limitations
 under the License.
 """
 
-from yosaipy2.core import cache_abcs
+from abcs import CacheHandler
 from dogpile.cache import make_region
 from functools import partial
 from dogpile.cache.api import NO_VALUE
 from settings import CacheSettings
 
 
-class DPCacheHandler(cache_abcs.CacheHandler):
+class DPCacheHandler(CacheHandler):
     def __init__(self, settings=None, serialization_manager=None):
         """
         You may either explicitly configure the CacheHandler or default to

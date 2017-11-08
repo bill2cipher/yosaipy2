@@ -91,7 +91,7 @@ class WebDelegatingSubject(DelegatingSubject):
                  host=None, session=None, session_creation_enabled=True,
                  security_manager=None, web_registry=None):
         super(WebDelegatingSubject, self).__init__(identifiers=identifiers,
-                                                   remembered=False,
+                                                   remembered=remembered,
                                                    authenticated=authenticated,
                                                    host=host,
                                                    session=session,

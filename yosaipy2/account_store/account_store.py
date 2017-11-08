@@ -52,7 +52,7 @@ class AccountStore(account_abcs.CredentialsAccountStore,
             self._logger.error("credential for user not found", extra={
                 "identifier": identifier,
             })
-            raise Exception("credential not found")
+            return None
 
         authc_info = {c.credential_type: {'credential': c.credential, 'failed_attemps': []} for c in credentials}
 

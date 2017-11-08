@@ -198,13 +198,13 @@ class DelegatingSubject(subject_abcs.Subject):
                  session_creation_enabled=True,
                  security_manager=None):
 
+        self._identifiers = None
+
         self.security_manager = security_manager
         self.identifiers = identifiers
         self.remembered = remembered
         self.authenticated = authenticated
         self.host = host
-        self._identifiers = None
-
         if session is not None:
             session.stop_session_callback = self.session_stopped
             self.session = session
@@ -213,6 +213,7 @@ class DelegatingSubject(subject_abcs.Subject):
 
         self.session_creation_enabled = session_creation_enabled
         self.run_as_identifiers_session_key = 'run_as_identifiers_session_key'
+        self._logger = get_logger()
 
     # this is a placeholder for subclasses, which use more elaborate checking:
     def is_session_creation_enabled(self):
@@ -662,7 +663,7 @@ class SubjectStore(object):
 
         :param subject: the Subject instance for which its state will be
                         created or updated
-        :type subject:  subject_abcs.Subject
+        :type subject:  DelegatingSubject
 
         :returns: the same Subject passed in (a new Subject instance is
                   not created).
@@ -684,7 +685,7 @@ class SubjectStore(object):
         Merges the Subject's identifying attributes (principals) and authc status
         into the Subject's session
 
-        :type subject:  subject_abcs.Subject
+        :type subject:  DelegatingSubject
         """
         current_identifiers = None
 
@@ -1044,7 +1045,8 @@ class Yosai(object):
 
 
 class SecurityManagerCreator(object):
-    def _init_realms(self, settings, realms):
+    @staticmethod
+    def _init_realms(settings, realms):
         try:
             return tuple(realm(account_store=account_store(settings=settings), **verifiers)
                          for realm, account_store, verifiers in realms)
@@ -1053,14 +1055,16 @@ class SecurityManagerCreator(object):
             msg = 'Failed to initialize realms during SecurityManager Setup'
             raise exc.__class__(msg)
 
-    def _init_cache_handler(self, settings, cache_handler, serialization_manager):
+    @staticmethod
+    def _init_cache_handler(settings, cache_handler, serialization_manager):
         try:
             return cache_handler(settings=settings,
                                  serialization_manager=serialization_manager)
         except TypeError:
             return None
 
-    def _init_session_attributes(self, session_attributes, attributes):
+    @staticmethod
+    def _init_session_attributes(session_attributes, attributes):
         if session_attributes:
             return session_attributes
 
