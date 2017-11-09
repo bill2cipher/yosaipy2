@@ -16,16 +16,12 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 """
-import logging
 from pathlib import Path
 import yaml
 import os
 
 empty = object()
-logger = logging.getLogger(__name__)
 
-
-# largely copied from django:
 
 class LazySettings(object):
     """
@@ -43,7 +39,7 @@ class LazySettings(object):
 
     def __getattr__(self, name):
         if self._wrapped is empty:
-            self._setup(name)
+            self._setup()
         return getattr(self._wrapped, name, None)
 
     def __setattr__(self, name, value):
@@ -66,7 +62,7 @@ class LazySettings(object):
     def configured(self):
         return self._wrapped is not empty
 
-    def _setup(self, name=None):
+    def _setup(self):
         """
         Load the settings module referenced by env_var. This environment-
         defined configuration process is called during the settings
@@ -82,7 +78,6 @@ class LazySettings(object):
             msg = ("Requested settings, but none can be obtained for the envvar."
                    "Since no config filepath can be obtained, a default config "
                    "will be used.")
-            logger.error(msg)
             raise OSError(msg)
 
         self._wrapped = Settings(settings_file)
@@ -92,14 +87,13 @@ class Settings:
     def __init__(self, settings_filepath):
         self.load_config(settings_filepath)
 
-    def get_config(self, filepath):
-        if os.path.exists(filepath):
-
-            with Path(filepath).open() as stream:
-                config = yaml.load(stream)
-
-        else:
+    @staticmethod
+    def get_config(filepath):
+        if not os.path.exists(filepath):
             raise OSError('could not locate: ' + str(filepath))
+
+        with Path(filepath).open() as stream:
+            config = yaml.load(stream)
         return config
 
     def load_config(self, filepath):

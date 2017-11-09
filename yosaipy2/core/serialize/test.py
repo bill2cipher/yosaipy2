@@ -1,5 +1,6 @@
 from serializer import BaseSchema, MarshmallowSerializer, DictSchema
 from marshmallow import fields, MarshalResult
+from yosaipy2.web.session.schema import WebSimpleSession, WebSessionSchema
 
 
 class User:
@@ -14,9 +15,11 @@ class User:
 
 
 class UserSchema(BaseSchema):
+    under_type = User.__name__
     name = fields.String()
     password = fields.String()
     good = fields.Dict()
+
 
 b = {
     'home': 12,
@@ -30,11 +33,23 @@ b = {
 ser = MarshmallowSerializer()
 ser.register_schema(User, UserSchema)
 ser.register_schema(dict, DictSchema)
+ser.register_schema(WebSimpleSession, WebSessionSchema)
 obj = User()
 
-result = ser.serialize(obj)  # type: MarshalResult
-print('###', result, type(result))
+# result = ser.serialize(obj)  # type: MarshalResult
+# print('###', result, type(result))
+#
+# result = ser.deserialize(result)
+# print(result, type(result))
+#
+# result = ser.serialize(b)
+# print('###', result, type(result))
+#
+# result = ser.deserialize(result)
+# print(result, type(result))
 
-
-result = ser.serialize(b)
-print('###', result, type(result))
+session = WebSimpleSession("asdf", 1, 2, "sadf")
+result = ser.serialize(session)
+print('##', result, type(result))
+result = ser.deserialize(result)
+print('##', result, type(result))

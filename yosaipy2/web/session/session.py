@@ -239,11 +239,7 @@ class WebSessionManager(NativeSessionManager):
                                    self.idle_timeout,
                                    host=session_context.get('host'))
 
-        msg = "Creating session. "
-        self._logger.debug(msg)
-
-        msg = ("Creating new EIS record for new session instance [{0}]".
-               format(session))
+        msg = "Creating new EIS record for new session instance [{0}]".format(session)
         self._logger.debug(msg)
 
         sessionid = self.session_handler.create_session(session)

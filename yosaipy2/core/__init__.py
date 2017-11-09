@@ -123,8 +123,8 @@ from yosaipy2.core.session.manager import (
     DelegatingSession
 )
 
-from yosaipy2.core.serialize.serialize import (
-    SerializationManager,
+from yosaipy2.core.serialize.manager import (
+    SerializationManager
 )
 
 from yosaipy2.core.subject.subject import (
@@ -169,3 +169,10 @@ from yosaipy2.core.mgt.mgt import (
     AbstractRememberMeManager,
     NativeSecurityManager,
 )
+
+from yosaipy2.core.session.schema import SimpleSessionSchema
+from yosaipy2.core.serialize.manager import SerializationManager
+from yosaipy2.core.subject.schema import SimpleIdentifierCollection, SimpleIdentifierSchema
+
+SerializationManager.register_schema(SimpleSession, SimpleSessionSchema)
+SerializationManager.register_schema(SimpleIdentifierCollection, SimpleIdentifierSchema)

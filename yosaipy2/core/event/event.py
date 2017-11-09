@@ -16,17 +16,15 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 """
-import logging
-
+from yosaipy2.core.utils.utils import get_logger
 from yosaipy2.core.event.event_bus import event_bus
 
 EVENT_TOPIC = event_bus.AUTO_TOPIC
 
-logger = logging.getLogger(__name__)
-
 
 class EventLogger(object):
     def __init__(self, eventbus):
+        self._logger = get_logger()
         eventbus.subscribe(self.log_session_event, 'SESSION.START')
         eventbus.subscribe(self.log_session_event, 'SESSION.STOP')
         eventbus.subscribe(self.log_session_event, 'SESSION.EXPIRE')
@@ -41,15 +39,15 @@ class EventLogger(object):
         eventbus.subscribe(self.log_authz_event, 'AUTHORIZATION.RESULTS')
 
     def log_authc_event(self, identifier=None, topic=EVENT_TOPIC):
-        logger.info(topic.getName(), extra={'identifier': identifier})
+        self._logger.info(topic.getName(), extra={'identifier': identifier})
 
     def log_session_event(self, items=None, topic=EVENT_TOPIC):
         try:
             identifier = items.identifiers.primary_identifier
         except AttributeError:
             identifier = None
-        logger.info(topic.getName(), extra={'identifier': identifier,
-                                            'session_id': items.session_id})
+        self._logger.info(topic.getName(), extra={'identifier': identifier,
+                                                  'session_id': items.session_id})
 
     def log_authz_event(self, identifiers=None, items=None, logical_operator=None,
                         topic=EVENT_TOPIC):
@@ -57,6 +55,6 @@ class EventLogger(object):
         idents = identifiers.__getstate__()
         log_op = logical_operator.__class__.__name__
 
-        logger.info(topic.getName(), extra={'identifiers': idents,
-                                            'items': items,
-                                            'logical_operator': log_op})
+        self._logger.info(topic.getName(), extra={'identifiers': idents,
+                                                  'items': items,
+                                                  'logical_operator': log_op})

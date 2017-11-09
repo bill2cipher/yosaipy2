@@ -23,7 +23,6 @@ __maintainer__ = 'Darin Gordon'
 __email__ = 'dkcdkg@gmail.com'
 __status__ = 'Development'
 
-
 from yosaipy2.web.subject import abcs as web_subject_abcs
 from yosaipy2.web.registry import abcs as web_abcs  # since it is the primary api
 
@@ -33,11 +32,9 @@ from .exceptions import (
     YosaiWebException,
 )
 
-
 from yosaipy2.web.registry.registry_settings import (
     WebRegistrySettings,
 )
-
 
 from yosaipy2.web.session.session import (
     WebSessionStorageEvaluator,
@@ -47,7 +44,6 @@ from yosaipy2.web.session.session import (
     WebSessionHandler,
     WebSessionKey,
 )
-
 
 from yosaipy2.web.subject.subject import (
     WebSubjectContext,
@@ -60,3 +56,8 @@ from yosaipy2.web.mgt.mgt import (
     WebSecurityManager,
     CookieRememberMeManager,
 )
+
+from yosaipy2.web.session.schema import WebSessionSchema
+from yosaipy2.core.serialize.manager import SerializationManager
+
+SerializationManager.register_schema(WebSimpleSession, WebSessionSchema)

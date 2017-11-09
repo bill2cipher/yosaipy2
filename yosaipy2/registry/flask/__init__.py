@@ -6,7 +6,7 @@ from yosaipy2.web.registry.abcs import WebRegistry
 from yosaipy2.web import WebYosai
 from yosaipy2.registry.flask.webregistry import FlaskWebRegistry
 from typing import Callable, Dict, Optional
-import json
+from yosaipy2.core.utils.utils import json_loads
 
 
 def get_session_registry(create=False):
@@ -21,7 +21,7 @@ def get_session_registry(create=False):
         saved_registry = str(session['yosai_webregistry'])
         if not isinstance(saved_registry, FlaskWebRegistry):
             registry = FlaskWebRegistry()
-            registry.decode(json.loads(saved_registry))
+            registry.decode(json_loads(saved_registry))
         else:
             registry = saved_registry
     return registry

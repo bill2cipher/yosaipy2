@@ -12,6 +12,7 @@ class FlaskWebRegistry(WebRegistry):
         # type: (Callable[[Any], Dict]) -> None
         super(FlaskWebRegistry, self).__init__(request)
 
+    @property
     def remote_host(self):
         return request.remote_addr
 

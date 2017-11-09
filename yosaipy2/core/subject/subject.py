@@ -1089,9 +1089,7 @@ class SecurityManagerCreator(object):
 
         session_attributes = self._init_session_attributes(session_attributes, attributes)
 
-        serialization_manager = \
-            SerializationManager(session_attributes,
-                                 serializer_scheme=attributes['serializer'])
+        serialization_manager = SerializationManager()
 
         # the cache_handler doesn't initialize a cache_realm until it gets
         # a serialization manager, which is assigned within the SecurityManager

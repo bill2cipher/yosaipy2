@@ -17,18 +17,13 @@ specific language governing permissions and limitations
 under the License.
 """
 import collections
-import logging
-
+from yosaipy2.core.utils.utils import get_logger
 from yosaipy2.core import (
-    serialize_abcs,
     subject_abcs,
 )
 
-logger = logging.getLogger(__name__)
 
-
-class SimpleIdentifierCollection(subject_abcs.MutableIdentifierCollection,
-                                 serialize_abcs.Serializable):
+class SimpleIdentifierCollection(subject_abcs.MutableIdentifierCollection):
     """
     A collection of all identifying attributes associated with a corresponding
     Subject. An *identifier*, known in Shiro as a *principal*, is just a
@@ -56,7 +51,7 @@ class SimpleIdentifierCollection(subject_abcs.MutableIdentifierCollection,
         """
         self.source_identifiers = collections.OrderedDict()
         self._primary_identifier = None
-
+        self._logger = get_logger()
         if identifier_collection:
             self.add_collection(identifier_collection=identifier_collection)
         elif source_name and identifier:
@@ -72,7 +67,7 @@ class SimpleIdentifierCollection(subject_abcs.MutableIdentifierCollection,
                 primary_identifier = next(iter(identifiers))
             except (AttributeError, TypeError, StopIteration):
                 msg = "Failed to obtain primary identifier"
-                logger.warning(msg)
+                self._logger.warning(msg)
                 return None
             self._primary_identifier = primary_identifier
             return primary_identifier

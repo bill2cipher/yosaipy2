@@ -41,23 +41,24 @@ class DPCacheHandler(CacheHandler):
         if serialization_manager:
             self.serialization_manager = serialization_manager
         else:
-            self._serialization_manager = None
+            self._serializer = None
             self.cache_region = None
 
     @property
     def serialization_manager(self):
-        return self._serialization_manager
+        return self._serializer
 
     @serialization_manager.setter
     def serialization_manager(self, manager):
-        self._serialization_manager = manager
+        self._serializer = manager
         self.cache_region = self.create_cache_region(name=self.region_name)
 
     def create_cache_region(self, name):
         try:
             cache_region = make_region(name=name).configure(
-                'yosaipy2.cache.redis',
-                redis_expiration_time=3600,
+                'dogpile.cache.redis',
+                expiration_time=3600,
+                arguments=self.region_arguments
             )
         except AttributeError:
             one = 'serialization_manager not set' if not self.serialization_manager else ''
@@ -78,7 +79,11 @@ class DPCacheHandler(CacheHandler):
             return
         full_key = self.generate_key(identifier, domain)
         result = self.cache_region.get(full_key)
-        return None if result is NO_VALUE else result
+
+        if result is NO_VALUE:
+            return None
+        else:
+            return self._serializer.deserialize(result)
 
     def get_or_create(self, domain, identifier, creator_func, creator):
         """
@@ -102,10 +107,16 @@ class DPCacheHandler(CacheHandler):
         full_key = self.generate_key(identifier, domain)
         ttl = self.get_ttl(domain)
         creator = partial(creator_func, creator)
-        result = self.cache_region.get_or_create(key=full_key,
-                                                 creator=creator,
-                                                 expiration_time=ttl)
-        return None if result is NO_VALUE else result
+        creator = partial(self._serialize_wrapper, creator)
+        result = self.cache_region.get_or_create(
+            key=full_key,
+            creator=creator,
+            expiration_time=ttl
+        )
+        if result is NO_VALUE:
+            return None
+        else:
+            return self._serializer.deserialize(result)
 
     def hmget_or_create(self, domain, identifier, keys, creator_func, creator):
         """
@@ -151,6 +162,7 @@ class DPCacheHandler(CacheHandler):
         if value is None:
             return
         full_key = self.generate_key(identifier, domain)
+        value = self._serializer.serialize(value)
         self.cache_region.set(full_key, value)
 
     def delete(self, domain, identifier):
@@ -172,19 +184,23 @@ class DPCacheHandler(CacheHandler):
         """
         return self.cache_region.keys(pattern)
 
-    @staticmethod
-    def _hm_creator_wrapper(f, keys, *args):
+    def _hm_creator_wrapper(self, f, keys, *args):
         result = f(*args)
         store = {}
         for k in keys:
             if k in result:
                 store[k] = result[k]
+        store = self._serializer.serialize(store)
         return store
 
-    @staticmethod
-    def _hm_get(keys, data):
+    def _hm_get(self, keys, data):
+        data = self._serializer.deserialize(data)
         result = []
         for k in keys:
             if k in data:
                 result.append(data[k])
         return result
+
+    def _serialize_wrapper(self, f, *args, **kwargs):
+        result = f(*args, **kwargs)
+        return self._serializer.serialize(result)
