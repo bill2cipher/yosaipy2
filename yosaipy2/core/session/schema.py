@@ -4,6 +4,10 @@ from marshmallow import fields, post_load, pre_dump
 from session import SimpleSession
 from yosaipy2.core.serialize.serializer import BaseSchema
 from yosaipy2.core.subject.schema import SimpleIdentifierSchema
+from yosaipy2.core.utils.utils import get_logger
+
+logger = get_logger()
+
 
 class SimpleSessionSchema(BaseSchema):
     under_type = SimpleSession
@@ -21,13 +25,22 @@ class SimpleSessionSchema(BaseSchema):
 
     @pre_dump
     def encode_attribute(self, data):
-        internal_attributes = data['internal_attributes']
-        if 'run_as_identifiers_session_key' in internal_attributes:
-            pass
-        elif 'authenticated_session_key' in internal_attributes:
-            pass
-        elif 'identifiers_session_key' in internal_attributes:
-            pass
+        # type:(SimpleSession) -> SimpleSession
+        internal_attributes = data.internal_attributes
+        if 'identifiers_session_key' not in internal_attributes:
+            return data
+        elif not internal_attributes['identifiers_session_key']:
+            return data
+
+        schema = SimpleIdentifierSchema()
+        result = schema.dumps(internal_attributes['identifiers_session_key'])
+        if result.errors:
+            mesg = "encode internal attribute error: {}".format(result.errors)
+            logger.error(mesg)
+            raise Exception(mesg)
+        internal_attributes['identifiers_session_key'] = result.data
+        data.internal_attributes = internal_attributes
+        return data
 
     @post_load
     def make_session(self, data):
@@ -36,4 +49,22 @@ class SimpleSessionSchema(BaseSchema):
             if hasattr(s, k):
                 setattr(s, k, data[k])
         s.session_id = data['session_id']
+        result = self._decode_internal(data['internal_attributes'])
+        if not result:
+            return s
+        s.set_internal_attribute('identifiers_session_key', result)
         return s
+
+    @staticmethod
+    def _decode_internal(internal_attributes):
+        if 'identifiers_session_key' not in internal_attributes:
+            return None
+        elif not internal_attributes['identifiers_session_key']:
+            return None
+        schema = SimpleIdentifierSchema()
+        result = schema.loads(internal_attributes['identifiers_session_key'])
+        if result.errors:
+            mesg = "decode internal attributes error: {}".format(result.errors)
+            logger.error(mesg)
+            raise Exception(mesg)
+        return result.data

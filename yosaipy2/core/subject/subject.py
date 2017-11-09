@@ -687,18 +687,7 @@ class SubjectStore(object):
 
         :type subject:  DelegatingSubject
         """
-        current_identifiers = None
-
-        if subject.is_run_as:
-            # avoid the other steps of attribute access when referencing by
-            # property by referencing the underlying attribute directly:
-            current_identifiers = subject._identifiers
-
-        if not current_identifiers:
-            # if direct attribute access did not work, use the property-
-            # decorated attribute access method:
-            current_identifiers = subject.identifiers
-
+        current_identifiers = subject.identifiers
         session = subject.get_session(False)
 
         if not session:
