@@ -45,7 +45,7 @@ class AccountStore(account_abcs.CredentialsAccountStore,
             self._logger.error("user not found for specified id", extra={
                 "identifier": identifier,
             })
-            raise Exception("user not found")
+            return None
 
         credentials = self._retry_executor(self._query_credential, [], identifier)
         if (credentials is None) or len(credentials) <= 0:
