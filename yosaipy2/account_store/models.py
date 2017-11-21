@@ -15,22 +15,6 @@ class BaseModelImpl(object):
         return "{}.{}".format(self.pk_id, self.name)
 
 
-class Resource(BaseModelImpl):
-    pass
-
-
-class Action(BaseModelImpl):
-    pass
-
-
-class Domain(BaseModelImpl):
-    pass
-
-
-class CredentialType(BaseModelImpl):
-    pass
-
-
 class Role(BaseModelImpl):
     def __init__(self, pk_id, name, permission_ids):
         super(Role, self).__init__(pk_id, name)
@@ -125,36 +109,6 @@ class Permission(BaseModelImpl):
             return self._profile['resources']
         else:
             return ''
-
-    @property
-    def roles(self):
-        """
-        roles associated with this permission
-        :return:
-        """
-        if 'roles' in self._profile:
-            return self._profile['roles']
-        else:
-            return ''
-
-    @roles.setter
-    def roles(self, v):
-        self._profile['roles'] = v
-
-    @property
-    def users(self):
-        """
-        users associated with this permission
-        :return:
-        """
-        if 'users' in self._profile:
-            return self._profile['users']
-        else:
-            return ''
-
-    @users.setter
-    def users(self, v):
-        self._profile['users'] = v
 
 
 class Credential(BaseModelImpl):

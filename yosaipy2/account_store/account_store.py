@@ -104,7 +104,7 @@ class AccountStore(account_abcs.CredentialsAccountStore,
             detail = {
                 'domain': [p['domain']],
                 'actions': p['actions'] if 'actions' in p else ['*'],
-                'targets': p['targets'] if 'targets' in p else ['*']
+                'targets': p['resources'] if 'resources' in p else ['*']
             }
             result[domain].append(detail)
         return result

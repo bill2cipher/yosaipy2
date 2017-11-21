@@ -80,7 +80,7 @@ install_requires = [
 
 setup(
     name='yosaipy2',
-    version='0.3.4',
+    version='0.3.5',
     description="Yosai is a powerful security framework with an intuitive api.",
     long_description=README,
     classifiers=[
