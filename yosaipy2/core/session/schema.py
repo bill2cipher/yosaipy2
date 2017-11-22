@@ -5,6 +5,7 @@ from session import SimpleSession
 from yosaipy2.core.serialize.serializer import BaseSchema
 from yosaipy2.core.subject.schema import SimpleIdentifierSchema
 from yosaipy2.core.utils.utils import get_logger
+from copy import copy
 
 logger = get_logger()
 
@@ -38,9 +39,11 @@ class SimpleSessionSchema(BaseSchema):
             mesg = "encode internal attribute error: {}".format(result.errors)
             logger.error(mesg)
             raise Exception(mesg)
-        internal_attributes['identifiers_session_key'] = result.data
-        data.internal_attributes = internal_attributes
-        return data
+        copied = copy(internal_attributes)
+        copied['identifiers_session_key'] = result.data
+        copied_data = copy(data)
+        copied_data.internal_attributes = copied
+        return copied_data
 
     @post_load
     def make_session(self, data):
