@@ -72,7 +72,7 @@ install_requires = [
     'urllib3==1.22',
     'venusian==1.1.0',
     'WebOb==1.7.3',
-    'Werkzeug==0.12.2',
+    'Werkzeug==0.15.3',
     'WTForms==2.1',
     'zope.deprecation==4.3.0',
     'zope.interface==4.4.3',
