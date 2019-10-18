@@ -38,7 +38,7 @@ install_requires = [
     'cryptography==2.1.1',
     'dogpile.cache==0.6.4',
     'enum34==1.1.6',
-    'Flask==0.10.1',
+    'Flask==1.0',
     'hupper==1.0',
     'idna==2.6',
     'ipaddress==1.0.18',
