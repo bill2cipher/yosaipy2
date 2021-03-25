@@ -58,7 +58,7 @@ install_requires = [
     'pyramid==1.9.1',
     'python-json-logger==0.1.8',
     'pytz==2017.2',
-    'PyYAML==3.12',
+    'PyYAML==5.4',
     'redis==2.10.6',
     'repoze.lru==0.7',
     'requests==2.18.4',
