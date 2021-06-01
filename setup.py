@@ -69,7 +69,7 @@ install_requires = [
     'translationstring==1.3',
     'twine==1.9.1',
     'typing==3.6.2',
-    'urllib3==1.22',
+    'urllib3==1.26.5',
     'venusian==1.1.0',
     'WebOb==1.7.3',
     'Werkzeug==0.12.2',
